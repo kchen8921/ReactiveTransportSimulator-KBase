@@ -1,0 +1,121 @@
+{
+    "name": "run_batch_model",
+    "ver": "0.0.1",
+    "authors": [
+        "KChen"
+    ],
+    "contact": "http://kbase.us/contact-us/",
+    "visible": true,
+    "categories": [
+        "active",
+        "reactive_transport"
+    ],
+    "widgets": {
+        "output": "no-display",
+        "input": null
+    },
+    "parameters": [{
+            "id": "input_FBA_model",
+            "default_values": [""],
+            "advanced": false,
+            "field_type": "text",
+            "optional": false,
+            "text_options": {
+                "valid_ws_types": [
+                    "KBaseFBA.FBAModel"
+                ]
+            }
+        },
+        {
+            "id": "input_model_parameters",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [""],
+            "field_type": "dynamic_dropdown",
+            "dynamic_dropdown_options": {
+                "data_source": "ftp_staging"
+            }
+        },
+        {
+            "id": "subset_size",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["2"],
+            "field_type": "text"
+        },
+        {
+            "id": "simulation_time",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["1"],
+            "field_type": "text"
+        },
+        {
+            "id": "output_period",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["1"],
+            "field_type": "text"
+        },
+        {
+            "id": "temperature",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["25"],
+            "field_type": "text"
+        }
+    ],
+    "behavior": {
+        "service-mapping": {
+            "url": "",
+            "name": "PFLOTRAN",
+            "method": "upload_pflotran_model",
+            "input_mapping": [{
+                    "target_property": "workspace",
+                    "narrative_system_variable": "workspace"
+                },
+                {
+                    "input_parameter": "input_FBA_model",
+                    "target_property": "input_FBA_model",
+                    "target_type_transform": "resolved-ref"
+                },
+                {
+                    "input_parameter": "input_model_parameters",
+                    "target_property": "input_model_parameters"
+                },
+                {
+                    "input_parameter": "subset_size",
+                    "target_property": "subset_size"
+                },
+                {
+                    "input_parameter": "simulation_time",
+                    "target_property": "simulation_time"
+                },
+                {
+                    "input_parameter": "output_period",
+                    "target_property": "output_period"
+                },
+                {
+                    "input_parameter": "temperature",
+                    "target_property": "temperature"
+                }
+            ],
+            "output_mapping": [{
+                "service_method_output_path": [0, "report_name"],
+                "target_property": "report_name"
+            }, {
+                "service_method_output_path": [0, "report_ref"],
+                "target_property": "report_ref"
+            }, {
+                "narrative_system_variable": "workspace",
+                "target_property": "workspace_name"
+            }]
+        }
+    },
+    "job_id_output_field": "docker"
+}
