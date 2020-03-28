@@ -2,7 +2,7 @@
     "name": "run_batch_model",
     "ver": "0.0.1",
     "authors": [
-        "KChen"
+        "kchen"
     ],
     "contact": "http://kbase.us/contact-us/",
     "visible": true,
@@ -73,8 +73,8 @@
     "behavior": {
         "service-mapping": {
             "url": "",
-            "name": "PFLOTRAN",
-            "method": "upload_pflotran_model",
+            "name": "ReactiveTransportSimulator",
+            "method": "run_batch_model",
             "input_mapping": [{
                     "target_property": "workspace",
                     "narrative_system_variable": "workspace"
