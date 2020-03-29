@@ -40,6 +40,34 @@ class ReactiveTransportSimulator:
         #END_CONSTRUCTOR
         pass
 
+
+    def run_ReactiveTransportSimulator(self, ctx, params):
+        """
+        This example function accepts any number of parameters and returns results in a KBaseReport
+        :param params: instance of mapping from String to unspecified object
+        :returns: instance of type "ReportResults" -> structure: parameter
+           "report_name" of String, parameter "report_ref" of String
+        """
+        # ctx is the context object
+        # return variables are: output
+        #BEGIN run_ReactiveTransportSimulator
+        report = KBaseReport(self.callback_url)
+        report_info = report.create({'report': {'objects_created':[],
+                                                'text_message': params['parameter_1']},
+                                                'workspace_name': params['workspace_name']})
+        output = {
+            'report_name': report_info['name'],
+            'report_ref': report_info['ref'],
+        }
+        #END run_ReactiveTransportSimulator
+
+        # At some point might do deeper type checking...
+        if not isinstance(output, dict):
+            raise ValueError('Method run_ReactiveTransportSimulator return value ' +
+                             'output is not type dict as required.')
+        # return the results
+        return [output]
+
     def run_batch_model(self, ctx, params):
         """
         Thi function enables users to run a pflotran batch simulation from an input plfotran model and fbamodel chemistry
@@ -51,7 +79,7 @@ class ReactiveTransportSimulator:
         # return variables are: output
         #BEGIN run_PFLOTRAN
         params['shared_folder'] = self.shared_folder
-        pu = ReactiveTransportSimulatorRunBatchUtil(params)
+        pu = ReactiveTransportSimulatorRunUtil(params)
         output = pu.run_batch_model() 
         # html_folder = os.path.join(self.shared_folder, 'html')
         # os.mkdir(html_folder)
