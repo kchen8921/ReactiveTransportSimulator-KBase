@@ -338,10 +338,10 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_ReactiveTransportSimulator.run_ReactiveTransportSimulator,
-                             name='ReactiveTransportSimulator.run_ReactiveTransportSimulator',
+        self.rpc_service.add(impl_ReactiveTransportSimulator.run_batch_model,
+                             name='ReactiveTransportSimulator.run_batch_model',
                              types=[dict])
-        self.method_authentication['ReactiveTransportSimulator.run_ReactiveTransportSimulator'] = 'required'  # noqa
+        self.method_authentication['ReactiveTransportSimulator.run_batch_model'] = 'required'  # noqa
         self.rpc_service.add(impl_ReactiveTransportSimulator.status,
                              name='ReactiveTransportSimulator.status',
                              types=[dict])
