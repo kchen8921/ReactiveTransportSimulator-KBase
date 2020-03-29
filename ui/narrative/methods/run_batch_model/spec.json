@@ -74,7 +74,7 @@
         "service-mapping": {
             "url": "",
             "name": "ReactiveTransportSimulator",
-            "method": "run_ReactiveTransportSimulator",
+            "method": "run_batch_model",
             "input_mapping": [{
                     "target_property": "workspace",
                     "narrative_system_variable": "workspace"
