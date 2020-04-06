@@ -19,7 +19,7 @@
             "default_values": [""],
             "advanced": false,
             "field_type": "text",
-            "optional": false,
+            "optional": true,
             "text_options": {
                 "valid_ws_types": [
                     "KBaseFBA.FBAModel"
@@ -28,7 +28,7 @@
         },
         {
             "id": "input_model_parameters",
-            "optional": false,
+            "optional": true,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [""],
