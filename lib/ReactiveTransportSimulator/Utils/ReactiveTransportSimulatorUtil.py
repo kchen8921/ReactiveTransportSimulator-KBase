@@ -4,8 +4,8 @@ import subprocess
 import h5py
 import uuid
 from installed_clients.KBaseReportClient import KBaseReport
-from installed_clients.AssemblyUtilClient import AssemblyUtil
-from installed_clients.DataFileUtilClient import DataFileUtil
+# from installed_clients.DataFileUtilClient import DataFileUtil
+import pyclbr
 from pprint import pprint
 from shutil import copy
 import subprocess
@@ -35,6 +35,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
         self.scratch_folder = os.path.join(params['shared_folder'],"scratch")
 
     def run_batch_model(self):
+        module_info = pyclbr.readmodule(installed_clients.DataFileUtilClient)
+        print(module_info)
+
+        for item in module_info.values():
+            print(item.name)
+
         print('params:',self.params)
         try:
             os.mkdir(self.scratch_folder)
