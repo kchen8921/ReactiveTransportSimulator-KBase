@@ -2,4 +2,4 @@
 
 cd /bin/pflotran/src/pflotran
 pwd
-make pflotran
+make FC=gfortran pflotran
