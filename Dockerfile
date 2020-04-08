@@ -12,6 +12,7 @@ RUN apt-get -y update && \
     apt install -y mpich && \
     apt-get install -y libblas-dev liblapack-dev && \
     apt-get install -y libhdf5-dev
+
 #RUN apt-get update
 #RUN apt-get install -y gfortran
 #RUN apt install -y mpich
@@ -37,7 +38,7 @@ RUN  make pflotran
 # Install python package
 RUN pip install h5py
 RUN pip install matplotlib
-
+RUN pip install pandas
 # -----------------------------------------
 
 COPY ./ /kb/module
