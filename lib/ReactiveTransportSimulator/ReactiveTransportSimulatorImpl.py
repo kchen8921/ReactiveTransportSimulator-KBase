@@ -53,6 +53,7 @@ class ReactiveTransportSimulator:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_batch_model
+        params['shared_folder'] = self.shared_folder
         pu = ReactiveTransportSimulatorRunBatchUtil(params)
         output = pu.run_batch_model()
         #END run_batch_model
