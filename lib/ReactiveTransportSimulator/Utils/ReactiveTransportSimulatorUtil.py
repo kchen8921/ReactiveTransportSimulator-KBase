@@ -88,7 +88,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         # copy sandbox file to src dir and recompile pflotran
         src_dir = '/bin/pflotran/src/pflotran'
         copy(sb_file,src_dir)
-        compile_pflotran_cmd = "cd ~/pflotran/src/pflotran/ && make fast=1 pflotran"
+        compile_pflotran_cmd = "cd /bin/pflotran/src/ && make fast=1 pflotran"
         process = subprocess.Popen(compile_pflotran_cmd, stdout=subprocess.PIPE)
         output, error = process.communicate()
         print("Compile PFLOTRAN output:",output[-300:])
