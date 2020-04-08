@@ -777,7 +777,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     '''.format(rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.lower(),
             rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize())
         sandbox_file.write(sb)
-
+        print(sb)
         print('Sandbox code is generated at {}.'.format(sb_file))
         return
 
