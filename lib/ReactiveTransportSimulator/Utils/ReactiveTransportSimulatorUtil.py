@@ -752,7 +752,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     k_deg_scaled = this%k_deg * temperature_scaling_factor
     '''
 
-        sb = sb+self.generate_rate_expression(self,primary_species, stoi_file, rxn_name)
+        sb = sb+self.generate_rate_expression(primary_species, stoi_file, rxn_name)
 
         sb = sb+'''
     end subroutine {}React
