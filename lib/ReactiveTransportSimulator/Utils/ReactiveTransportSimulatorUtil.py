@@ -4,6 +4,7 @@ import subprocess
 import h5py
 import uuid
 from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from pprint import pprint
 from shutil import copy
