@@ -55,10 +55,10 @@ class ReactiveTransportSimulatorRunBatchUtil:
         # pprint(fba_obj)
         stoi_json = os.path.join(self.data_folder,'63.json')
         stoi_csv = os.path.join(self.scratch_folder,'rxn.csv')
-        nrxn = self.params['subset_size']
-        tot_time = self.params['simulation_time']
-        timestep = self.params['output_period']
-        temperature = self.params['temperature']
+        nrxn = float(self.params['subset_size'])
+        tot_time = float(self.params['simulation_time'])
+        timestep = float(self.params['output_period'])
+        temperature = float(self.params['temperature'])
         # input_deck_des = os.path.join(self.scratch_folder,'batch.in')
         # database_des = os.path.join(self.scratch_folder,'database.dat')
         # print('input_deck_des:',input_deck_des)
