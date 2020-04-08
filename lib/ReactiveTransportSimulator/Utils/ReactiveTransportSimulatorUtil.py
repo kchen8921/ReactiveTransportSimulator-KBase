@@ -75,14 +75,14 @@ class ReactiveTransportSimulatorRunBatchUtil:
         
         
         # generate stoichiometry table from FBA model
-        self.generate_stoi_table_json(self,stoi_json,comps,stoi_csv,nrxn)
+        self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
         print("Stoi table generated.")
 
         # generate sandbox file
         sb_file = os.path.join(self.scratch_folder,'reaction_sandbox_pnnl_cyber.F90')
         var = ['mu_max','vh','k_deg','cc','activation_energy','reference_temperature']
         var_unit = ['1/sec','m^3','1/sec','M','J/mol','K']
-        self.generate_sandbox_code(self,nrxn,var,var_unit,sb_file,stoi_csv)
+        self.generate_sandbox_code(nrxn,var,var_unit,sb_file,stoi_csv)
         print("Sandbox file generated.")
 
         # copy sandbox file to src dir and recompile pflotran
@@ -96,11 +96,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
         pprint(os.listdir(self.scratch_folder))
 
         # generate batch input deck
-        self.generate_batch_input_deck(self,batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
+        self.generate_batch_input_deck(batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
-        self.update_database(self,stoi_csv,db_temp,db)
+        self.update_database(stoi_csv,db_temp,db)
         print("Database generated.")
 
         # running pflotran
