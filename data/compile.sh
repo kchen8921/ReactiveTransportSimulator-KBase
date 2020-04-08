@@ -2,4 +2,4 @@
 # rm -r /bin/pflotran/
 # git clone https://bitbucket.org/pflotran/pflotran
 cd /bin/pflotran/src/pflotran
-make pflotran
+make fast=1 pflotran
