@@ -124,13 +124,13 @@ class ReactiveTransportSimulatorRunBatchUtil:
         # Check PFLOTRAN input deck
 # <<<<<<< HEAD
         pprint(self.params)
-        pflotran_model = self.params['PflotranModel_id']
-        pflotran_model_data = self.dfu.get_objects({'object_refs': [pflotran_model]})['data'][0]
-        pflotran_model_data_obj = pflotran_model_data['data']
-        pflotran_model_data_meta = pflotran_model_data['info'][10]
+        # pflotran_model = self.params['PflotranModel_id']
+        # pflotran_model_data = self.dfu.get_objects({'object_refs': [pflotran_model]})['data'][0]
+        # pflotran_model_data_obj = pflotran_model_data['data']
+        # pflotran_model_data_meta = pflotran_model_data['info'][10]
 
-        pprint(pflotran_model_data_obj)
-        pprint(pflotran_model_data_meta)
+        # pprint(pflotran_model_data_obj)
+        # pprint(pflotran_model_data_meta)
 # =======
 #         # pflotran_model = self.params['input_model']
 #         # hdf5_file = pflotran_model['hdf5_parameters']
