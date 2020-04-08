@@ -4,7 +4,7 @@ import subprocess
 import h5py
 import uuid
 from installed_clients.KBaseReportClient import KBaseReport
-from installed_clients.DataFileUtilClient import DataFileUtil
+# from installed_clients.DataFileUtilClient import DataFileUtil
 from pprint import pprint
 from shutil import copy
 import subprocess
@@ -26,7 +26,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     def __init__(self,params):
         self.params = params
         self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.dfu = DataFileUtil(self.callback_url)
+        # self.dfu = DataFileUtil(self.callback_url)
         self.output_files = []
         self.html_files = []
         self.data_folder = os.path.abspath('./data/')
