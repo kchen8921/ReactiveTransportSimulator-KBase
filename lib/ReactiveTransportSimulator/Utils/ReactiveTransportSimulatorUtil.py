@@ -369,7 +369,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         
         return   
  
-    def generate_sandbox_code(nrxn,var,var_unit,sb_file,stoi_file):
+    def generate_sandbox_code(self,nrxn,var,var_unit,sb_file,stoi_file):
         rxn_name = 'cyber'
         rxn_df = pd.read_csv(stoi_file)
         primary_species = list(rxn_df.columns)
