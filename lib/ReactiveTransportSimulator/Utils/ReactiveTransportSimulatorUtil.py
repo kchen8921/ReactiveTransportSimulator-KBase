@@ -158,7 +158,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
         return self._generate_html_report()
         
     def plot_time_series(self,h5_file):
-        var_name = ['Total_C5H7O2N(aq) [M]','Total_O2(aq) [M]','Total_CH2O(aq) [M]','Total_NO3- [M]','Total_NO2- [M]','Total_NH4+ [M]','Total_N2(aq) [M]']
         obs_coord = [0.5,0.5,0.5]
 
         file = h5py.File(h5_file,'r+')
@@ -183,6 +182,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
         x_idx = np.argmin(np.absolute(x_coord-obs_coord[0]))
         y_idx = np.argmin(np.absolute(y_coord-obs_coord[1]))
         z_idx = np.argmin(np.absolute(z_coord-obs_coord[2]))
+        time_zero = "Time:"+str(" %12.5E" % 0)+str(" %s" % time_unit)
+        var_name = [x for x in list(file[time_zero].keys()) if 'Total' in x]
         var_value = np.zeros((len(var_name),len(time)))
         for i, itime in enumerate(time):
             time_slice = "Time:"+str(" %12.5E" % itime)+str(" %s" % time_unit)
