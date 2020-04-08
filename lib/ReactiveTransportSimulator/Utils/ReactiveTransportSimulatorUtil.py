@@ -49,11 +49,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
         batch_deck = os.path.join(self.scratch_folder,'batch.in')
         db = os.path.join(self.scratch_folder,'database.dat')
         comps = os.path.join(self.data_folder,'temp_comps.tsv')
-        dfu = DataFileUtil(self.callback_url)
-        init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
-        print("Followed is init_cond:")
-        pprint(init_cond)
-        # init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
+        # dfu = DataFileUtil(self.callback_url)
+        # init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
+        # print("Followed is init_cond:")
+        # pprint(init_cond)
+        init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
         # fba_data = self.dfu.get_objects({'object_refs': [fba]})['data'][0]
         # fba_obj = fba_data['data']
         # ?
