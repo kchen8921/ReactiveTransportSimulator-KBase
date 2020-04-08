@@ -86,7 +86,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         print("Sandbox file generated.")
 
         # copy sandbox file to src dir and recompile pflotran
-        # src_dir = '/bin/pflotran/src/pflotran'
+        src_dir = '/bin/pflotran/src/pflotran'
         # copy(sb_file,src_dir)
         sb_test = os.path.join(self.data_folder,'reaction_sandbox_pnnl_cyber.F90')
         copy(sb_test,src_dir)
