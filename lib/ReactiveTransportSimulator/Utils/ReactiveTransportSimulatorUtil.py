@@ -87,9 +87,9 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # copy sandbox file to src dir and recompile pflotran
         src_dir = '/bin/pflotran/src/pflotran'
-        # copy(sb_file,src_dir)
-        sb_test = os.path.join(self.data_folder,'reaction_sandbox_pnnl_cyber.F90')
-        copy(sb_test,src_dir)
+        copy(sb_file,src_dir)
+        # sb_test = os.path.join(self.data_folder,'reaction_sandbox_pnnl_cyber.F90')
+        # copy(sb_test,src_dir)
         print(os.getcwd())
         compile_pflotran_cmd = 'sh ./data/compile.sh'
         process = subprocess.Popen(compile_pflotran_cmd.split(), stdout=subprocess.PIPE)
@@ -369,7 +369,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         
         return   
  
-    def generate_sandbox_code(self,nrxn,var,var_unit,sb_file,stoi_file):
+    def generate_sandbox_code(nrxn,var,var_unit,sb_file,stoi_file):
         rxn_name = 'cyber'
         rxn_df = pd.read_csv(stoi_file)
         primary_species = list(rxn_df.columns)
@@ -779,9 +779,10 @@ class ReactiveTransportSimulatorRunBatchUtil:
     '''.format(rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.lower(),
             rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize())
         sandbox_file.write(sb)
-        print(sb)
+
         print('Sandbox code is generated at {}.'.format(sb_file))
         return
+
 
     def generate_rate_expression(self,primary_species, stoi_file, rxn_name):
         rxn_df = pd.read_csv(stoi_file)
