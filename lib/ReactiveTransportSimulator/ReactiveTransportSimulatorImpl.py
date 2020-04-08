@@ -51,6 +51,8 @@ class ReactiveTransportSimulator:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_batch_model
+        pu = ReactiveTransportSimulatorRunBatchUtil(params)
+        output = pu.run_batch_model()
         #END run_batch_model
 
         # At some point might do deeper type checking...
