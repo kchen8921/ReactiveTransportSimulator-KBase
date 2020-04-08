@@ -382,16 +382,16 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sb = '''
     module Reaction_Sandbox_{}_class
 
-    use Reaction_Sandbox_Base_class
+      use Reaction_Sandbox_Base_class
 
-    use Global_Aux_module
-    use Reactive_Transport_Aux_module
+      use Global_Aux_module
+      use Reactive_Transport_Aux_module
 
-    use PFLOTRAN_Constants_module
+      use PFLOTRAN_Constants_module
 
-    implicit none
+      implicit none
 
-    private
+      private
 
     #include "petsc/finclude/petscsys.h"
     '''
@@ -401,7 +401,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
             sb = sb+"  PetscInt, parameter :: {}_MASS_STORAGE_INDEX = {}\n".format(item,idx+1)
 
         sb = sb+'''
-    type, public, &
+      type, public, &
         extends(reaction_sandbox_base_type) :: reaction_sandbox_{}_type
     '''.format(rxn_name)
 
@@ -416,20 +416,20 @@ class ReactiveTransportSimulatorRunBatchUtil:
         PetscReal :: nrxn
         PetscBool :: store_cumulative_mass
         PetscInt :: offset_auxiliary
-    contains
+      contains
         procedure, public :: ReadInput => {}Read
         procedure, public :: Setup => {}Setup
         procedure, public :: Evaluate => {}React
         procedure, public :: Destroy => {}Destroy
-    end type reaction_sandbox_{}_type
+      end type reaction_sandbox_{}_type
 
-    public :: {}Create
+      public :: {}Create
 
     contains
 
     ! ************************************************************************** !
     '''.format(rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize(),
-            rxn_name,rxn_name.capitalize())
+               rxn_name,rxn_name.capitalize())
 
     #----------------------------------------------------------------------------
     #
@@ -439,12 +439,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sb = sb+'''
     function {}Create()
     #include "petsc/finclude/petscsys.h"
-    use petscsys
-    implicit none
+      use petscsys
+      implicit none
 
-    class(reaction_sandbox_{}_type), pointer :: {}Create
+      class(reaction_sandbox_{}_type), pointer :: {}Create
 
-    allocate({}Create)
+      allocate({}Create)
     '''.format(rxn_name.capitalize(),rxn_name,rxn_name.capitalize(),rxn_name.capitalize())
 
         for i in primary_species_nosign:
@@ -457,11 +457,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 sb = sb+"  {}Create%{} = UNINITIALIZED_DOUBLE \n".format(rxn_name.capitalize(),i)
 
         sb = sb+'''
-    {}Create%nrxn = UNINITIALIZED_INTEGER
-    {}Create%store_cumulative_mass = PETSC_FALSE
+      {}Create%nrxn = UNINITIALIZED_INTEGER
+      {}Create%store_cumulative_mass = PETSC_FALSE
 
-    nullify({}Create%next)
-    print *, '{}Creat Done'
+      nullify({}Create%next)
+      print *, '{}Creat Done'
     end function {}Create
 
     ! ************************************************************************** !
@@ -478,23 +478,23 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
     subroutine {}Read(this,input,option)
 
-    use Option_module
-    use String_module
-    use Input_Aux_module
+      use Option_module
+      use String_module
+      use Input_Aux_module
 
-    implicit none
+      implicit none
 
-    class(reaction_sandbox_{}_type) :: this
-    type(input_type), pointer :: input
-    type(option_type) :: option
+      class(reaction_sandbox_{}_type) :: this
+      type(input_type), pointer :: input
+      type(option_type) :: option
 
-    PetscInt :: i
-    character(len=MAXWORDLENGTH) :: word, internal_units, units
-    character(len=MAXSTRINGLENGTH) :: error_string
+      PetscInt :: i
+      character(len=MAXWORDLENGTH) :: word, internal_units, units
+      character(len=MAXSTRINGLENGTH) :: error_string
 
-    error_string = 'CHEMISTRY,REACTION_SANDBOX,{}'
-    call InputPushBlock(input,option)
-    do
+      error_string = 'CHEMISTRY,REACTION_SANDBOX,{}'
+      call InputPushBlock(input,option)
+      do
         call InputReadPflotranString(input,option)
         if (InputError(input)) exit
         if (InputCheckExit(input,option)) exit
@@ -509,27 +509,27 @@ class ReactiveTransportSimulatorRunBatchUtil:
         for idx,item in enumerate(var):
             if item!='reference_temperature':
                 sb = sb+'''
-        case('{}')
+          case('{}')
             call InputReadDouble(input,option,this%{})
             call InputErrorMsg(input,option,'{}',error_string)
             call InputReadAndConvertUnits(input,this%{},'{}', &
-                                        trim(error_string)//',{}',option)
+                                          trim(error_string)//',{}',option)
             '''.format(item.upper(),item.lower(),item.lower(),item.lower(),
-                    var_unit[idx],item.lower())
+                       var_unit[idx],item.lower())
             else:
                 sb = sb+'''
-        case('REFERENCE_TEMPERATURE')
+          case('REFERENCE_TEMPERATURE')
             call InputReadDouble(input,option,this%reference_temperature)
             call InputErrorMsg(input,option,'reference temperature [C]', &
-                            error_string)
+                               error_string)
             this%reference_temperature = this%reference_temperature + 273.15d0
             '''
         sb = sb+'''
-        case default
+          case default
             call InputKeywordUnrecognized(input,word,error_string,option)
         end select
-    enddo
-    call InputPopBlock(input,option)
+      enddo
+      call InputPopBlock(input,option)
     end subroutine {}Read
 
     ! ************************************************************************** !
@@ -543,42 +543,42 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sb = sb+'''
     subroutine {}Setup(this,reaction,option)
 
-    use Reaction_Aux_module, only : reaction_rt_type, GetPrimarySpeciesIDFromName
-    use Reaction_Immobile_Aux_module, only : GetImmobileSpeciesIDFromName
-    use Reaction_Mineral_Aux_module, only : GetKineticMineralIDFromName
-    use Option_module
+      use Reaction_Aux_module, only : reaction_rt_type, GetPrimarySpeciesIDFromName
+      use Reaction_Immobile_Aux_module, only : GetImmobileSpeciesIDFromName
+      use Reaction_Mineral_Aux_module, only : GetKineticMineralIDFromName
+      use Option_module
 
-    implicit none
+      implicit none
 
-    class(reaction_sandbox_{}_type) :: this
-    class(reaction_rt_type) :: reaction
-    type(option_type) :: option
+      class(reaction_sandbox_{}_type) :: this
+      class(reaction_rt_type) :: reaction
+      type(option_type) :: option
 
-    character(len=MAXWORDLENGTH) :: word
-    PetscInt :: irxn
+      character(len=MAXWORDLENGTH) :: word
+      PetscInt :: irxn
 
-    PetscReal, parameter :: per_day_to_per_sec = 1.d0 / 24.d0 / 3600.d0
+      PetscReal, parameter :: per_day_to_per_sec = 1.d0 / 24.d0 / 3600.d0
     '''.format(rxn_name.capitalize(),rxn_name.lower())
 
         for idx,item in enumerate(primary_species):
             if item.upper()!='BIOMASS':
                 sb = sb+'''
-    word = '{}'
-    this%{}_id = &
+      word = '{}'
+      this%{}_id = &
         GetPrimarySpeciesIDFromName(word,reaction,option)
         '''.format(item.upper(),primary_species_nosign[idx].lower())
             else:
                 sb = sb+'''
-    word = 'BIOMASS'
-    this%biomass_id = &
+      word = 'BIOMASS'
+      this%biomass_id = &
         GetImmobileSpeciesIDFromName(word,reaction%immobile,option) + reaction%offset_immobile
             '''
 
         sb = sb+'''
-    if (this%store_cumulative_mass) then
+      if (this%store_cumulative_mass) then
         this%offset_auxiliary = reaction%nauxiliary
         reaction%nauxiliary = reaction%nauxiliary + {}
-    endif
+      endif
 
     end subroutine {}Setup
 
@@ -593,23 +593,23 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sb = sb+'''
     subroutine {}AuxiliaryPlotVariables(this,list,reaction,option)
 
-    use Option_module
-    use Reaction_Aux_module
-    use Output_Aux_module
-    use Variables_module, only : REACTION_AUXILIARY
+      use Option_module
+      use Reaction_Aux_module
+      use Output_Aux_module
+      use Variables_module, only : REACTION_AUXILIARY
 
-    implicit none
+      implicit none
 
-    class(reaction_sandbox_{}_type) :: this
-    type(output_variable_list_type), pointer :: list
-    type(option_type) :: option
-    class(reaction_rt_type) :: reaction
+      class(reaction_sandbox_{}_type) :: this
+      type(output_variable_list_type), pointer :: list
+      type(option_type) :: option
+      class(reaction_rt_type) :: reaction
 
-    character(len=MAXWORDLENGTH) :: names({})
-    character(len=MAXWORDLENGTH) :: word
-    character(len=MAXWORDLENGTH) :: units
-    PetscInt :: indices({})
-    PetscInt :: i
+      character(len=MAXWORDLENGTH) :: names({})
+      character(len=MAXWORDLENGTH) :: word
+      character(len=MAXWORDLENGTH) :: units
+      PetscInt :: indices({})
+      PetscInt :: i
 
     '''.format(rxn_name.capitalize(),rxn_name.lower(),len(primary_species),len(primary_species))
 
@@ -620,22 +620,22 @@ class ReactiveTransportSimulatorRunBatchUtil:
             sb = sb+"  indices({}) = {}_MASS_STORAGE_INDEX\n".format(idx+1,item.upper())
 
         sb = sb+'''
-    if (this%store_cumulative_mass) then
+      if (this%store_cumulative_mass) then
         do i = 1, {}
-        word = trim(names(i)) // ' Rate'
-        units = 'mol/m^3-sec'
-        call OutputVariableAddToList(list,word,OUTPUT_RATE,units, &
-                                    REACTION_AUXILIARY, &
-                                    this%offset_auxiliary+indices(i))
+          word = trim(names(i)) // ' Rate'
+          units = 'mol/m^3-sec'
+          call OutputVariableAddToList(list,word,OUTPUT_RATE,units, &
+                                       REACTION_AUXILIARY, &
+                                       this%offset_auxiliary+indices(i))
         enddo
         do i = 1, {}
-        word = trim(names(i)) // ' Cum. Mass'
-        units = 'mol/m^3'
-        call OutputVariableAddToList(list,word,OUTPUT_GENERIC,units, &
-                                    REACTION_AUXILIARY, &
-                                    this%offset_auxiliary+{}+indices(i))
+          word = trim(names(i)) // ' Cum. Mass'
+          units = 'mol/m^3'
+          call OutputVariableAddToList(list,word,OUTPUT_GENERIC,units, &
+                                       REACTION_AUXILIARY, &
+                                       this%offset_auxiliary+{}+indices(i))
         enddo
-    endif
+      endif
 
     end subroutine {}AuxiliaryPlotVariables
 
@@ -649,30 +649,30 @@ class ReactiveTransportSimulatorRunBatchUtil:
     #----------------------------------------------------------------------------
         sb = sb+'''
     subroutine {}React(this,Residual,Jacobian,compute_derivative, &
-                            rt_auxvar,global_auxvar,material_auxvar,reaction, &
-                            option)
+                             rt_auxvar,global_auxvar,material_auxvar,reaction, &
+                             option)
 
-    use Option_module
-    use Reaction_Aux_module
-    use Material_Aux_class
+      use Option_module
+      use Reaction_Aux_module
+      use Material_Aux_class
 
-    implicit none
+      implicit none
 
-    class(reaction_sandbox_{}_type) :: this
-    type(option_type) :: option
-    class(reaction_rt_type) :: reaction
-    ! the following arrays must be declared after reaction
-    PetscReal :: Residual(reaction%ncomp)
-    PetscReal :: Jacobian(reaction%ncomp,reaction%ncomp)
-    type(reactive_transport_auxvar_type) :: rt_auxvar
-    type(global_auxvar_type) :: global_auxvar
-    class(material_auxvar_type) :: material_auxvar
+      class(reaction_sandbox_{}_type) :: this
+      type(option_type) :: option
+      class(reaction_rt_type) :: reaction
+      ! the following arrays must be declared after reaction
+      PetscReal :: Residual(reaction%ncomp)
+      PetscReal :: Jacobian(reaction%ncomp,reaction%ncomp)
+      type(reactive_transport_auxvar_type) :: rt_auxvar
+      type(global_auxvar_type) :: global_auxvar
+      class(material_auxvar_type) :: material_auxvar
 
-    PetscInt, parameter :: iphase = 1
-    PetscReal :: L_water
-    PetscReal :: kg_water
+      PetscInt, parameter :: iphase = 1
+      PetscReal :: L_water
+      PetscReal :: kg_water
 
-    PetscInt :: i, j, irxn
+      PetscInt :: i, j, irxn
     '''.format(rxn_name.capitalize(),rxn_name.lower())
 
         sb = sb+"  PetscReal :: "
@@ -712,31 +712,31 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sb = sb+"k_deg_scaled"
 
         sb = sb+'''
-    PetscReal :: volume, rate_scale
-    PetscBool :: compute_derivative
+      PetscReal :: volume, rate_scale
+      PetscBool :: compute_derivative
 
-    PetscReal :: rate({})
+      PetscReal :: rate({})
 
-    volume = material_auxvar%volume
-    L_water = material_auxvar%porosity*global_auxvar%sat(iphase)* &
+      volume = material_auxvar%volume
+      L_water = material_auxvar%porosity*global_auxvar%sat(iphase)* &
                 volume*1.d3 ! m^3 -> L
-    kg_water = material_auxvar%porosity*global_auxvar%sat(iphase)* &
-                global_auxvar%den_kg(iphase)*volume
+      kg_water = material_auxvar%porosity*global_auxvar%sat(iphase)* &
+                 global_auxvar%den_kg(iphase)*volume
 
-    molality_to_molarity = global_auxvar%den_kg(iphase)*1.d-3
+      molality_to_molarity = global_auxvar%den_kg(iphase)*1.d-3
 
-    if (reaction%act_coef_update_frequency /= ACT_COEF_FREQUENCY_OFF) then
+      if (reaction%act_coef_update_frequency /= ACT_COEF_FREQUENCY_OFF) then
         option%io_buffer = 'Activity coefficients not currently supported in &
-        &{}React().'
+          &{}React().'
         call printErrMsg(option)
-    endif
+      endif
 
-    temperature_scaling_factor = 1.d0
-    if (Initialized(this%activation_energy)) then
+      temperature_scaling_factor = 1.d0
+      if (Initialized(this%activation_energy)) then
         temperature_scaling_factor = &
-        exp(this%activation_energy/IDEAL_GAS_CONSTANT* &
-            (1.d0/this%reference_temperature-1.d0/(global_auxvar%temp+273.15d0)))
-    endif
+          exp(this%activation_energy/IDEAL_GAS_CONSTANT* &
+              (1.d0/this%reference_temperature-1.d0/(global_auxvar%temp+273.15d0)))
+      endif
 
     '''.format(nrxn,rxn_name.capitalize())
 
@@ -744,16 +744,16 @@ class ReactiveTransportSimulatorRunBatchUtil:
         for i in primary_species_nosign:
             if i.upper()!='BIOMASS':
                 sb = sb+'''
-    C_{} = rt_auxvar%pri_molal(this%{}_id)* &
+      C_{} = rt_auxvar%pri_molal(this%{}_id)* &
             rt_auxvar%pri_act_coef(this%{}_id)*molality_to_molarity
             '''.format(i.lower(),i.lower(),i.lower())
             else:
                 sb = sb+'''
-    C_biomass = rt_auxvar%immobile(this%biomass_id-reaction%offset_immobile)
+      C_biomass = rt_auxvar%immobile(this%biomass_id-reaction%offset_immobile)
             '''
         sb = sb +'''
-    mu_max_scaled = this%mu_max * temperature_scaling_factor
-    k_deg_scaled = this%k_deg * temperature_scaling_factor
+      mu_max_scaled = this%mu_max * temperature_scaling_factor
+      k_deg_scaled = this%k_deg * temperature_scaling_factor
     '''
 
         sb = sb+self.generate_rate_expression(primary_species, stoi_file, rxn_name)
@@ -765,21 +765,21 @@ class ReactiveTransportSimulatorRunBatchUtil:
     ! ************************************************************************** !
 
     subroutine {}Destroy(this)
-    use Utility_module
+      use Utility_module
 
-    implicit none
+      implicit none
 
-    class(reaction_sandbox_{}_type) :: this
+      class(reaction_sandbox_{}_type) :: this
 
-    print *, '{}Destroy Done'
+      print *, '{}Destroy Done'
 
     end subroutine {}Destroy
 
     end module Reaction_Sandbox_{}_class
     '''.format(rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.lower(),
-            rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize())
+               rxn_name.capitalize(),rxn_name.capitalize(),rxn_name.capitalize())
         sandbox_file.write(sb)
-        print(sb)
+
         print('Sandbox code is generated at {}.'.format(sb_file))
         return
 
@@ -791,8 +791,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         rkin = {}
         for i in range(len(rxn_df)):
-        #         doc_name = rxn_df.iloc[i,0]
-        #         doc_name = re.sub('[-+)]','',doc_name)
+    #         doc_name = rxn_df.iloc[i,0]
+    #         doc_name = re.sub('[-+)]','',doc_name)
             doc_name = rxn_df['DOC_name'].iloc[i] 
             doc_name = doc_name.lower()
             print(doc_name)
@@ -829,15 +829,15 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
             res_i = ['  Residual(' + i_id + ') = Residual(' + i_id +')  &']
             space_idx = res_i[0].find('=')
-        #         first_rate_flag = True
+    #         first_rate_flag = True
             for irow in range(len(rxn_df)):
                 if pd.isnull(rxn_df.iloc[irow,icol]):
                     continue
                 sto_i = str(rxn_df.iloc[irow,icol])
                 if sto_i[0] == '-':
-        #                 if first_rate_flag:
-        #                     res_i[0] = re.sub('[-]','+',res_i[0])
-        #                     first_rate_flag = False
+    #                 if first_rate_flag:
+    #                     res_i[0] = re.sub('[-]','+',res_i[0])
+    #                     first_rate_flag = False
                     sto_i = re.sub('[-]','',sto_i)
                     res_i_temp = ' '*space_idx + ' + ' + str(sto_i) + ' * rate(' + str(irow+1) +') * C_biomass * L_water &'
                 else:
@@ -902,7 +902,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 rate_expr = rate_expr+values[i]+'\n'
 
         rate_expr = rate_expr+'''
-        if (this%store_cumulative_mass) then
+      if (this%store_cumulative_mass) then
             rate_scale = C_biomass * L_water / volume
         '''
         for key, values in mass.items():
@@ -910,7 +910,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 rate_expr = rate_expr+values[i]+'\n'
 
         rate_expr = rate_expr+'''
-        endif
+      endif
         '''
         return rate_expr
 
