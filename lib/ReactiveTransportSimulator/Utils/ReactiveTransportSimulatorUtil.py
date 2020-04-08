@@ -49,11 +49,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
         db = os.path.join(self.scratch_folder,'database.dat')
         comps = os.path.join(self.data_folder,'temp_comps.tsv')
         init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.tsv')
-        fba_data = self.dfu.get_objects({'object_refs': [fba]})['data'][0]
-        fba_obj = fba_data['data']
+        # fba_data = self.dfu.get_objects({'object_refs': [fba]})['data'][0]
+        # fba_obj = fba_data['data']
         # ?
-        pprint(fba_obj)
-        stoi_json = fba_obj
+        # pprint(fba_obj)
+        stoi_json = os.path.join(self.data_folder,'63.json')
         stoi_csv = os.path.join(self.scratch_folder,'rxn.csv')
         nrxn = self.params['subset_size']
         tot_time = self.params['simulation_time']
