@@ -361,6 +361,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 if '<=>' in j_val:
                     reac_flag = True
         print(df_rxn.columns)
+        print(df_rxn.head())
         df_rxn.to_csv(output_filepath)
         print("File reading completed. \n")
         
