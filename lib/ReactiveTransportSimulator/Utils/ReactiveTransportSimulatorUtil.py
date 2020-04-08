@@ -87,7 +87,9 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # copy sandbox file to src dir and recompile pflotran
         src_dir = '/bin/pflotran/src/pflotran'
-        copy(sb_file,src_dir)
+        # copy(sb_file,src_dir)
+        sb_test = os.path.join(self.data_folder,'reaction_sandbox_pnnl_cyber.F90')
+        copy(sb_test,src_dir)
         print(os.getcwd())
         compile_pflotran_cmd = 'sh ./data/compile.sh'
         process = subprocess.Popen(compile_pflotran_cmd.split(), stdout=subprocess.PIPE)
@@ -287,7 +289,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
             rxn_id.append(random.randint(0,tot_nreac-1))
         
         # choose the first two reactions for test
-    #     rxn_id = [1,2,3]
+        rxn_id = [1,2]
         
         stoi_id = ['xrxn'+str(i)+'_c0' for i in rxn_id]
         rxn_alias = ['r'+str(i+1) for i in range(len(rxn_id))]
