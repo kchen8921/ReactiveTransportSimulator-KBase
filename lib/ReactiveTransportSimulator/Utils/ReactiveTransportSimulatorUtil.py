@@ -317,7 +317,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
             rxn_id.append(random.randint(0,tot_nreac-1))
         
         # choose the first two reactions for test
-        rxn_id = [1,2]
+#        rxn_id = [1,2]
         
         stoi_id = ['xrxn'+str(i)+'_c0' for i in rxn_id]
         rxn_alias = ['r'+str(i+1) for i in range(len(rxn_id))]
