@@ -703,41 +703,24 @@ class ReactiveTransportSimulatorRunBatchUtil:
       PetscInt :: i, j, irxn
     '''.format(rxn_name.capitalize(),rxn_name.lower())
 
-        sb = sb+"  PetscReal :: "
         for idx, item in enumerate(primary_species_nosign):
-            if idx != len(primary_species)-1:
-                sb = sb+"C_{},".format(item.lower())
-            else:
-                sb = sb+"C_{}".format(item.lower())
+            sb = sb+"  PetscReal :: C_{} \n".format(item.lower()) 
 
-        sb = sb+"\n  PetscReal :: "
         for i in range(nrxn):
-            if i != nrxn-1:
-                sb = sb+"r{}doc,r{}o2,".format(i+1,i+1)
-            else:
-                sb = sb+"r{}doc,r{}o2".format(i+1,i+1)
+            sb = sb+"  PetscReal :: r{}doc,r{}o2 \n".format(i+1,i+1)
 
-        sb = sb+"\n  PetscReal :: "
         for i in range(nrxn):
-            if i != nrxn-1:
-                sb = sb+"r{}kin,".format(i+1)
-            else:
-                sb = sb+"r{}kin\n".format(i+1)
+            sb = sb+"  PetscReal :: r{}kin \n".format(i+1)
 
-        sb = sb+"  PetscReal :: sumkin"
-        sb = sb+"\n  PetscReal :: "
+        sb = sb+"  PetscReal :: sumkin \n"
         for i in range(nrxn):
-            if i != nrxn-1:
-                sb = sb+"u{},".format(i+1)
-            else:
-                sb = sb+"u{}\n".format(i+1)
+            sb = sb+"  PetscReal :: u{} \n".format(i+1)
 
         sb = sb+"  PetscReal :: molality_to_molarity\n  PetscReal :: temperature_scaling_factor\n  PetscReal :: mu_max_scaled\n"
-        sb = sb+"  PetscReal :: "
         for i in range(nrxn):
-            sb = sb+"k{}_scaled,".format(i+1)
+            sb = sb+"  PetscReal :: k{}_scaled \n".format(i+1)
 
-        sb = sb+"k_deg_scaled"
+        sb = sb+"  PetscReal :: k_deg_scaled"
 
         sb = sb+'''
       PetscReal :: volume, rate_scale
