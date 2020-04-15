@@ -163,12 +163,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
              'description': 'Sandbox source code'}
         )       
         self.output_files.append(
-            {'path': sb_test,
-             'name': os.path.basename(sb_test),
-             'label': os.path.basename(sb_test),
-             'description': 'Sandbox test code'}
-        )  
-        self.output_files.append(
             {'path': batch_deck,
              'name': os.path.basename(batch_deck),
              'label': os.path.basename(batch_deck),
