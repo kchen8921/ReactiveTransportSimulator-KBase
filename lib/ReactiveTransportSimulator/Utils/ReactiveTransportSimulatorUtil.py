@@ -817,9 +817,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
         sumkin = '  sumkin = '
         for i in range(len(rxn_df)):
             if i == len(rxn_df)-1:
-                sumkin = sumkin + 'r' + str(i+1) + 'kin'
+                sumkin = sumkin + '         r' + str(i+1) + 'kin '
+            elif i == 0:
+                sumkin = sumkin + 'r' + str(i+1) + 'kin + & \n'
             else:
-                sumkin = sumkin + 'r' + str(i+1) + 'kin + '
+                sumkin = sumkin + '         r' + str(i+1) + 'kin + & \n'
 
         u = []
         for i in range(len(rxn_df)):
