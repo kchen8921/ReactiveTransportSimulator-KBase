@@ -255,7 +255,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         output_directory = os.path.join(self.shared_folder,'output') 
         os.makedirs(output_directory)
         print("output dir:", output_directory)
-        html_file = os.path.join(output_directory,'test.html')
+        html_file = os.path.join(output_directory,'summary.html')
         fig_name = 'time_series_plot.png'
         pflotran_out_name = 'batch.out'
         fig_path = os.path.join(self.scratch_folder,fig_name)
@@ -297,7 +297,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         return {'shock_id': report_shock_id,
                 'name': os.path.basename(html_file),
                 'label': os.path.basename(html_file),
-                'description': 'HTML summary report for run_pflotran App'}
+                'description': 'HTML summary report for run_batch_model App'}
 
     def generate_stoi_table_json(self,stoi_filepath_json,comps_filepath,output_filepath,nreac):
         df_comps = pd.read_csv(comps_filepath, sep='\t', header=0)
