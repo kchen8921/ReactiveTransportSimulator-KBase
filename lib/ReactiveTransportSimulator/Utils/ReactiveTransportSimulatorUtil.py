@@ -52,12 +52,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # read initial condition from staging
         dfu = DataFileUtil(self.callback_url)
-        init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
-        print("Followed is init_cond:")
-        pprint(init_cond)
+        # init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
+        # print("Followed is init_cond:")
+        # pprint(init_cond)
 
         # read initial condition from /bin/module/data
-        # init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
+        init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
 
 
         stoi_json = os.path.join(self.data_folder,'63.json')
