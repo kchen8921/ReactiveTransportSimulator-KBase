@@ -39,6 +39,7 @@ RUN  make pflotran
 RUN pip install h5py
 RUN pip install matplotlib
 RUN pip install pandas
+RUN pip install --upgrade fprettify
 # -----------------------------------------
 
 COPY ./ /kb/module
