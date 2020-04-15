@@ -219,23 +219,22 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 var_value[j,i] = file[time_slice][var_name[j]][x_idx][y_idx][z_idx]
 
         fig = plt.figure(num=1,dpi=150)
-        legend = []
-        lines = []
+        first_doc = True
         for i in range(len(var_name)):
-            line = plt.plot(time,var_value[i,:])[0]
-            plt.ioff()
-            lines.append(line)
-            legend.append(var_name[i])
+            if var_name[i][6] == 'C':
+                if first_doc == True:
+                    plt.plot(time,var_value[i,:],label='DOCs',color='k')[0]
+                    first_doc = False
+                else:
+                    plt.plot(time,var_value[i,:],color='k')[0]
+            else:
+                plt.plot(time,var_value[i,:],label=var_name[i])[0]
             plt.ioff()
 
         plt.xlabel("Time (%s)" %time_unit)
         ylabel = 'Concentration [M]'
-        #     if 'Total' in var_name[0]:
-        #         ylabel = 'Concentration [M]'
-        #     else:
-        #         ylabel = var_name[0][var_name[0].index('_')+1:]
         plt.ylabel(ylabel)
-        plt.legend(lines,legend,frameon=False)
+        plt.legend(frameon=False,loc='upper center', bbox_to_anchor=(0.5, -0.15),ncol=3)
         fig_name = 'time_series_plot.png'
         fig_path = os.path.join(self.scratch_folder,fig_name)    
         plt.savefig(fig_path,dpi=150) 
