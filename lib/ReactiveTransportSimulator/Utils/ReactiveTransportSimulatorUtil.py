@@ -52,7 +52,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # read initial condition from staging
         dfu = DataFileUtil(self.callback_url)
-        input_fba = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
+        input_fba = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data']
         pprint("start printing fba:")
         pprint(input_fba)
         # init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
