@@ -59,7 +59,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # collect the compound info
         cpdid2formula = dict()
-        df_cpd = pd.DataFrame({'formula':None})
+        df_cpd = pd.DataFrame({'formula':'H2O'})
         for compound in fba_model['data']['modelcompounds']:
             cpdid2formula[compound['id']] = compound['formula']
             df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
