@@ -44,12 +44,13 @@ class ReactiveTransportSimulatorRunBatchUtil:
             print ("Successfully created the directory %s " % self.scratch_folder)
 
         # # copy pflotran input deck for test
-        batch_deck_temp = os.path.join(self.data_folder,'batch_template.in')
-        db_temp = os.path.join(self.data_folder,'database_template.dat')
-        batch_deck = os.path.join(self.scratch_folder,'batch.in')
-        db = os.path.join(self.scratch_folder,'database.dat')
-        comps = os.path.join(self.data_folder,'temp_comps.tsv')
-        stoi_csv_fba = os.path.join(self.scratch_folder,'rxn_fba.csv')
+        batch_deck_temp  = os.path.join(self.data_folder,'batch_template.in')
+        db_temp          = os.path.join(self.data_folder,'database_template.dat')
+        batch_deck       = os.path.join(self.scratch_folder,'batch.in')
+        db               = os.path.join(self.scratch_folder,'database.dat')
+        comps            = os.path.join(self.data_folder,'temp_comps.tsv')
+        stoi_csv_fba     = os.path.join(self.scratch_folder,'rxn_fba.csv')
+        cpd_csv_fba      = os.path.join(self.scratch_folder,'cpd_fba.csv')
         # read FBA model and generate stoi table
         print("Input FBA model: ",self.params['input_FBA_model'])
         dfu = DataFileUtil(self.callback_url)
@@ -58,9 +59,14 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # collect the compound info
         cpdid2formula = dict()
+        df_cpd = pd.DataFrame({'formula':None})
         for compound in fba_model['data']['modelcompounds']:
             cpdid2formula[compound['id']] = compound['formula']
-
+            df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
+        df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',1,True)
+        df_cpd.to_csv(cpd_csv_fba,index=False)
+        print("Compounds saved. \n")
+        
         # collect donor, acceptor, biom from reactions
         """
             donor : "~/modelcompounds/id/xcpd2_c0"
@@ -101,7 +107,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         print(df_rxn.columns)
         print(df_rxn.head())
         df_rxn.to_csv(stoi_csv_fba,index=False)
-        print("File reading completed. \n")
+        print("Selected reactions saved. \n")
         # stoich_by_reactions = []
         # for reaction in fba_model['data']['modelreactions']:
         #     stoich = dict()
@@ -151,8 +157,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
         
         
         # generate stoichiometry table from FBA model
-        self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
-        print("Stoi table generated.")
+        # self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
+        # print("Stoi table generated.")
 
         # generate sandbox file
         sb_file = os.path.join(self.scratch_folder,'reaction_sandbox_pnnl_cyber.F90')
@@ -230,11 +236,16 @@ class ReactiveTransportSimulatorRunBatchUtil:
 #        self.hdf_output_file = os.path.join(self.shared_folder,'test.h5')
 #        with h5py.File(self.hdf_output_file, 'w') as f:
 #            dset = f.create_dataset("mydataset", (100,), dtype='i')
-
+        self.output_files.append(
+            {'path': cpd_csv_fba,
+             'name': os.path.basename(cpd_csv_fba),
+             'label': os.path.basename(cpd_csv_fba),
+             'description': 'compounds'}
+        ) 
         self.output_files.append(
             {'path': stoi_csv_fba,
              'name': os.path.basename(stoi_csv_fba),
-             'label': 'reaction network',
+             'label': os.path.basename(stoi_csv_fba),
              'description': 'reactions stoichiometry table'}
         )      
         self.output_files.append(
@@ -483,12 +494,19 @@ class ReactiveTransportSimulatorRunBatchUtil:
         rxn_name = 'cyber'
         rxn_df = pd.read_csv(stoi_file)
         primary_species = list(rxn_df.columns)
-        primary_species.remove('id')
+        primary_species.remove('rxn_id')
         primary_species.remove('DOC_name')
-        primary_species.remove('alias')
+        primary_species.remove('rxn_ref')
         primary_species.remove('H2O')
         sandbox_file = open(sb_file,'w+')
-        primary_species_nosign = [i[:-1] if i[-1]=='-' or i[-1]=='+' else i for i in primary_species]
+        # primary_species_nosign = [i[:-1] if i[-1]=='-' or i[-1]=='+' else i for i in primary_species]
+        primary_species_nosign = []
+        for species in primary_species:
+            if '+' in species:
+                species = species.replace('+','')
+            if '-' in species:
+                species = species.replace('-','')    
+            primary_species_nosign.append(species)
         sb = '''
     module Reaction_Sandbox_{}_class
 
