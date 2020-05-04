@@ -50,14 +50,50 @@ class ReactiveTransportSimulatorRunBatchUtil:
         db = os.path.join(self.scratch_folder,'database.dat')
         comps = os.path.join(self.data_folder,'temp_comps.tsv')
 
-        # read initial condition from staging
+        # read FBA model and generate stoi table
+        print("Input FBA model: ",self.params['input_FBA_model'])
         dfu = DataFileUtil(self.callback_url)
-        input_fba = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data']
-        pprint("start printing fba:")
-        pprint(input_fba)
-        # init_cond = dfu.get_objects({'object_refs': [self.params['input_model_parameters']]})['data'][0]['data']
-        # print("Followed is init_cond:")
-        # pprint(init_cond)
+        fba_model = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
+        print("FBA model name :",fba_model['data']['name'])
+
+        # collect the compound info
+        cpdid2formula = dict()
+        for compound in fba_model['data']['modelcompounds']:
+            cpdid2formula[compound['id']] = compound['formula']
+
+        # collect donor, acceptor, biom from reactions
+        """
+            donor : "~/modelcompounds/id/xcpd2_c0"
+            acceptor : "~/modelcompounds/id/acceptor_c0"
+            biom : "~/modelcompounds/id/biom_c0"
+        """
+        nrxn = int(self.params['subset_size'])
+        rxn_ref = ['r'+str(i+1) for i in range(nrxn)]
+        df_rxn = pd.DataFrame({'rxn_ref':rxn_ref,'rxn_id':None,'DOC_formular':None})
+        print(fba_model['data']['modelreactions'].type)
+        
+        # stoich_by_reactions = []
+        # for reaction in fba_model['data']['modelreactions']:
+        #     stoich = dict()
+        #     stoich["id"] = reaction["id"]
+        #     for reagent in reaction["modelReactionReagents"]:
+        #         cpdid = reagent['modelcompound_ref'].split('/id/')[1]
+        #         if "acceptor" in cpdid:
+        #             stoich["acceptor"] = reagent['coefficient']
+        #         elif "biom" in cpdid:
+        #             stoich["biom"] = reagent['coefficient']
+        #         elif "xcpd" in cpdid:
+        #             stoich["donor"] = reagent['coefficient']
+        #             formula = cpdid2formula[cpdid]
+        #             stoich["formula"] = formula
+        #             num_carbon = re.search('C(\d*)', formula)
+        #             if num_carbon:
+        #                 n_element = num_carbon.group(1)
+        #                 if n_element=='': stoich["C"] = 1
+        #                 else: stoich["C"] = int(n_element)
+        #     stoich_by_reactions.append(stoich)
+
+
 
         # read initial condition from /bin/module/data
         init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
