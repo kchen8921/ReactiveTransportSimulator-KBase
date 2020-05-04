@@ -249,10 +249,10 @@ class ReactiveTransportSimulatorRunBatchUtil:
 #            dset = f.create_dataset("mydataset", (100,), dtype='i')
 
         self.output_files.append(
-            {'path': sb_file,
-             'name': os.path.basename(sb_file),
-             'label': os.path.basename(sb_file),
-             'description': 'Sandbox source code'}
+            {'path': stoi_csv_fba,
+             'name': os.path.basename(stoi_csv_fba),
+             'label': os.path.basename(stoi_csv_fba),
+             'description': 'reactions stoichiometry table'}
         )      
         self.output_files.append(
             {'path': sb_file,
