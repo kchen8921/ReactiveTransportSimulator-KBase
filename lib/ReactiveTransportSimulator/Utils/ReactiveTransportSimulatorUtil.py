@@ -494,9 +494,9 @@ class ReactiveTransportSimulatorRunBatchUtil:
         rxn_name = 'cyber'
         rxn_df = pd.read_csv(stoi_file)
         primary_species = list(rxn_df.columns)
-        primary_species.remove('rxn_id')
+        primary_species.remove('alias')
         primary_species.remove('DOC_name')
-        primary_species.remove('rxn_ref')
+        primary_species.remove('id')
         primary_species.remove('H2O')
         sandbox_file = open(sb_file,'w+')
         # primary_species_nosign = [i[:-1] if i[-1]=='-' or i[-1]=='+' else i for i in primary_species]
