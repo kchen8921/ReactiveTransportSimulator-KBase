@@ -1053,6 +1053,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         primary_species.remove('rxn_ref')
         primary_species.remove('H2O')
         primary_species.remove('BIOMASS')
+        print(init_df.columns)
         init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species]
         init_biom = init_file.loc[init_file['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
         for idx,val in enumerate(primary_species):
