@@ -67,6 +67,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
             else:
                 df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
         df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',1,True)
+        df_cpd['formula'].replace('', np.nan, inplace=True)
         df_cpd = df_cpd.dropna()
         df_cpd.to_csv(cpd_csv_fba,index=False)
         print("Compounds saved. \n")
