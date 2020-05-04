@@ -49,7 +49,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         batch_deck = os.path.join(self.scratch_folder,'batch.in')
         db = os.path.join(self.scratch_folder,'database.dat')
         comps = os.path.join(self.data_folder,'temp_comps.tsv')
-
+        stoi_csv_fba = os.path.join(self.scratch_folder,'rxn_fba.csv')
         # read FBA model and generate stoi table
         print("Input FBA model: ",self.params['input_FBA_model'])
         dfu = DataFileUtil(self.callback_url)
@@ -69,9 +69,56 @@ class ReactiveTransportSimulatorRunBatchUtil:
         """
         nrxn = int(self.params['subset_size'])
         rxn_ref = ['r'+str(i+1) for i in range(nrxn)]
-        df_rxn = pd.DataFrame({'rxn_ref':rxn_ref,'rxn_id':None,'DOC_formular':None})
-        print(fba_model['data']['modelreactions'].type)
-        
+        df_rxn = pd.DataFrame({'rxn_ref':rxn_ref,'rxn_id':None,'DOC_formula':None})
+
+        selected_reactions = random.choice(fba_model['data']['modelreactions'],k=nrxn)
+        for reaction_idx,reaction_val in enumerate(selected_reactions):
+            df_rxn['rxn_id'].iloc[reaction_idx] = reaction_val['id']
+            for reagent in reaction_val['modelReactionReagents']:
+                cpdid = reagent['modelcompound_ref'].split('/id/')[1]
+                if "xcpd" in cpdid:
+                    formula = cpdid2formula[cpdid]
+                    coef    = reagent['coefficient']
+                    df_rxn['DOC_formula'].iloc[reaction_idx] = formula
+                elif "h2o" in cpdid:
+                    formula = 'H2O'
+                    coef    = reagent['coefficient']
+                elif "h[c0]" in cpdid:
+                    formula = 'H+'
+                    coef    = reagent['coefficient']                   
+                elif "hco3" in cpdid:
+                    formula = 'HCO3-'
+                    coef    = reagent['coefficient']
+                elif "nh4" in cpdid:
+                    formula = 'NH4+'
+                    coef    = reagent['coefficient']                    
+                elif "hpo4" in cpdid:
+                    formula = 'HPO4-'
+                    coef    = reagent['coefficient'] 
+                elif "hs" in cpdid:
+                    formula = 'HS-'
+                    coef    = reagent['coefficient'] 
+                elif "acceptor" in cpdid:
+                    formula = 'O2'
+                    coef    = reagent['coefficient'] 
+                elif "biom" in cpdid:
+                    formula = 'BIOMASS'
+                    coef    = reagent['coefficient'] 
+                else:
+                    formula = cpdid2formula[cpdid]
+                    coef    = reagent['coefficient'] 
+                    print('Compound {} is not included.'.format(formula))
+
+                if not formula in df_rxn.columns:
+                    df_rxn.insert(len(df_rxn.columns),formula,None,True)
+                    df_rxn[formula].iloc[reaction_idx] = coef
+                else:
+                    df_rxn[formula].iloc[reaction_idx] = coef
+
+        print(df_rxn.columns)
+        print(df_rxn.head())
+        df_rxn.to_csv(stoi_csv_fba)
+        print("File reading completed. \n")
         # stoich_by_reactions = []
         # for reaction in fba_model['data']['modelreactions']:
         #     stoich = dict()
@@ -201,6 +248,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
 #        with h5py.File(self.hdf_output_file, 'w') as f:
 #            dset = f.create_dataset("mydataset", (100,), dtype='i')
 
+        self.output_files.append(
+            {'path': sb_file,
+             'name': os.path.basename(sb_file),
+             'label': os.path.basename(sb_file),
+             'description': 'Sandbox source code'}
+        )      
         self.output_files.append(
             {'path': sb_file,
              'name': os.path.basename(sb_file),
