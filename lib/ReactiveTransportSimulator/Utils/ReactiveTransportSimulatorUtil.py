@@ -45,9 +45,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # # copy pflotran input deck for test
         batch_deck_temp  = os.path.join(self.data_folder,'batch_template.in')
-        db_temp          = os.path.join(self.data_folder,'database_template.dat')
+        pflotran_db_temp = os.path.join(self.data_folder,'database_template.dat')
         batch_deck       = os.path.join(self.scratch_folder,'batch.in')
+        pflotran_input   = os.path.join(self.scratch_folder,'batch1.in')
         db               = os.path.join(self.scratch_folder,'database.dat')
+        pflotran_db      = os.path.join(self.scratch_folder,'database1.dat')
         comps            = os.path.join(self.data_folder,'temp_comps.tsv')
         stoi_csv_fba     = os.path.join(self.scratch_folder,'rxn_fba.csv')
         cpd_csv_fba      = os.path.join(self.scratch_folder,'cpd_fba.csv')
@@ -187,10 +189,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # generate batch input deck
         self.generate_batch_input_deck(batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
+        self.generate_pflotran_input_batch(batch_deck_temp,stoi_csv,init_cond,pflotran_input,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
-        self.update_database(stoi_csv,db_temp,db)
+        self.update_database(stoi_csv,pflotran_db_temp,db)
+        self.update_pflotran_database(stoi_csv,pflotran_db_temp,pflotran_db)
         print("Database generated.")
 
         # running pflotran
@@ -259,6 +263,18 @@ class ReactiveTransportSimulatorRunBatchUtil:
              'label': os.path.basename(batch_deck),
              'description': 'Batch reaction input deck for PFLOTRAN'}
         )           
+        self.output_files.append(
+            {'path': pflotran_input,
+             'name': os.path.basename(pflotran_input),
+             'label': os.path.basename(pflotran_input),
+             'description': 'Batch reaction input deck for PFLOTRAN'}
+        )  
+        self.output_files.append(
+            {'path': pflotran_db,
+             'name': os.path.basename(pflotran_db),
+             'label': os.path.basename(pflotran_db),
+             'description': 'Batch reaction input deck for PFLOTRAN'}
+        )  
         self.output_files.append(
             {'path': h5_file,
              'name': os.path.basename(h5_file),
@@ -1026,6 +1042,81 @@ class ReactiveTransportSimulatorRunBatchUtil:
         '''
         return rate_expr
 
+    def generate_pflotran_input_batch(self,batch_file,stoi_file,init_file,output_file,tot_time,timestep,temp):
+        file = open(batch_file,'r')
+        rxn_df = pd.read_csv(stoi_file)
+        init_df = pd.read_csv(init_file)
+
+        primary_species = list(rxn_df.columns)
+        primary_species.remove('rxn_id')
+        primary_species.remove('DOC_formula')
+        primary_species.remove('rxn_ref')
+        primary_species.remove('H2O')
+        primary_species.remove('BIOMASS')
+        init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species]
+        init_biom = init_file.loc[init_file['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
+        for idx,val in enumerate(primary_species):
+            print("The initial concentration of {} is {} mol/L \n".format(val,init_cond[idx]))
+            
+        pri_spec = ""
+        pri_spec_init = ""
+        new_file_content = ""
+        for line in file:           
+            if 'PRIMARY_SPECIES' in line:
+                new_file_content += line
+                for i in primary_species:
+                    pri_spec += "    " + i + "\n"  
+                new_file_content += "    " + pri_spec + "\n" 
+            elif '  CONCENTRATIONS' in line:
+                new_file_content += line
+                for j in range(len(primary_species)):
+                    pri_spec_init += "    {}        {}.d0 T".format(primary_species[j],init_cond[j])+ "\n"
+                new_file_content += pri_spec_init + "\n" 
+            elif 'IMMOBILE' in line:
+                new_file_content += "    BIOMASS    {}d0 ".format(init_biom) + "\n" 
+                
+            elif 'FINAL_TIME' in line:
+                new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
+                
+            elif 'MAXIMUM_TIMESTEP_SIZE' in line:
+                new_file_content += "  MAXIMUM_TIMESTEP_SIZE {} h".format(timestep) + "\n"
+                
+            elif 'PERIODIC TIME' in line:
+                new_file_content += "    PERIODIC TIME {} h".format(timestep) + "\n"        
+                
+            elif 'REFERENCE_TEMPERATURE' in line:
+                new_file_content += "      REFERENCE_TEMPERATURE {} ! degrees C".format(temp) + "\n"
+                
+            else:
+                new_file_content += line  
+                
+        writing_file = open(output_file, "w")
+        writing_file.write(new_file_content)
+        writing_file.close()
+        print('The batch input deck is updated.')
+        return
+
+    def update_pflotran_database(self,stoi_file,dbase_temp_file,dbase_out_file):
+        rxn_df = pd.read_csv(stoi_file)
+        print(rxn_df['DOC_formula'].values)
+        
+        new_db_content = ""
+        doc_db = ""
+        file = open(dbase_temp_file,'r')
+        for line in file:
+            if "'C" not in line:
+                new_db_content += line
+            else:
+                for i in rxn_df['DOC_formula'].values:
+                    doc_db += "'{}'".format(i)+" 3.0 0.0 100" + '\n'
+                new_db_content += doc_db
+        
+        writing_file = open(dbase_out_file, "w")
+        writing_file.write(new_db_content)
+        writing_file.close()
+        print('The database is updated.')
+        return
+# old
     def generate_batch_input_deck(self,batch_file,stoi_file,comps_file,init_file,output_file,tot_time,timestep,temp):
         file = open(batch_file,'r')
         rxn_df = pd.read_csv(stoi_file)
