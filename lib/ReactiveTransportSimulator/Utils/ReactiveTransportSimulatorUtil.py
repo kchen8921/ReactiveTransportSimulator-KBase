@@ -71,7 +71,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         rxn_ref = ['r'+str(i+1) for i in range(nrxn)]
         df_rxn = pd.DataFrame({'rxn_ref':rxn_ref,'rxn_id':None,'DOC_formula':None})
 
-        selected_reactions = random.choice(fba_model['data']['modelreactions'],k=nrxn)
+        selected_reactions = random.choices(fba_model['data']['modelreactions'],k=nrxn)
         for reaction_idx,reaction_val in enumerate(selected_reactions):
             df_rxn['rxn_id'].iloc[reaction_idx] = reaction_val['id']
             for reagent in reaction_val['modelReactionReagents']:
