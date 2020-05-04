@@ -157,7 +157,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         
         
         # generate stoichiometry table from FBA model
-        # self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
+        self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
         # print("Stoi table generated.")
 
         # generate sandbox file
