@@ -100,7 +100,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         print(df_rxn.columns)
         print(df_rxn.head())
-        df_rxn.to_csv(stoi_csv_fba)
+        df_rxn.to_csv(stoi_csv_fba,index=False)
         print("File reading completed. \n")
         # stoich_by_reactions = []
         # for reaction in fba_model['data']['modelreactions']:
@@ -233,8 +233,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         self.output_files.append(
             {'path': stoi_csv_fba,
-             'name': 'Reaction network',
-             'label': 'Reaction network',
+             'name': os.path.basename(stoi_csv_fba),
+             'label': 'reaction network',
              'description': 'reactions stoichiometry table'}
         )      
         self.output_files.append(
