@@ -62,8 +62,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
         df_cpd = pd.DataFrame({'formula':[None]})
         for compound in fba_model['data']['modelcompounds']:
             cpdid2formula[compound['id']] = compound['formula']
-            df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
+            if 'biom' in compound['id']:
+                df_cpd = df_cpd.append({'formula':'BIOMASS'}, ignore_index=True)
+            else:
+                df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
         df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',1,True)
+        df_cpd = df_cpd.dropna()
         df_cpd.to_csv(cpd_csv_fba,index=False)
         print("Compounds saved. \n")
         
@@ -82,20 +86,14 @@ class ReactiveTransportSimulatorRunBatchUtil:
             df_rxn['rxn_id'].iloc[reaction_idx] = reaction_val['id']
             for reagent in reaction_val['modelReactionReagents']:
                 cpdid = reagent['modelcompound_ref'].split('/id/')[1]
+                formula = cpdid2formula[cpdid]
+                coef    = reagent['coefficient']
+
                 if "xcpd" in cpdid:
-                    formula = cpdid2formula[cpdid]
-                    coef    = reagent['coefficient']
                     df_rxn['DOC_formula'].iloc[reaction_idx] = formula
-                elif "acceptor" in cpdid:
-                    formula = 'O2'
-                    coef    = reagent['coefficient'] 
-                elif "biom" in cpdid:
+
+                if "biom" in cpdid:
                     formula = 'BIOMASS'
-                    coef    = reagent['coefficient'] 
-                else:
-                    formula = cpdid2formula[cpdid]
-                    coef    = reagent['coefficient'] 
-                    print('Compound {} is not included.'.format(formula))
 
                 if not formula in df_rxn.columns:
                     temp = ['0']*df_rxn.shape[0]
