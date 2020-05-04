@@ -80,24 +80,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
                     formula = cpdid2formula[cpdid]
                     coef    = reagent['coefficient']
                     df_rxn['DOC_formula'].iloc[reaction_idx] = formula
-                elif "h2o" in cpdid:
-                    formula = 'H2O'
-                    coef    = reagent['coefficient']
-                elif "h[c0]" in cpdid:
-                    formula = 'H+'
-                    coef    = reagent['coefficient']                   
-                elif "hco3" in cpdid:
-                    formula = 'HCO3-'
-                    coef    = reagent['coefficient']
-                elif "nh4" in cpdid:
-                    formula = 'NH4+'
-                    coef    = reagent['coefficient']                    
-                elif "hpo4" in cpdid:
-                    formula = 'HPO4-'
-                    coef    = reagent['coefficient'] 
-                elif "hs" in cpdid:
-                    formula = 'HS-'
-                    coef    = reagent['coefficient'] 
                 elif "acceptor" in cpdid:
                     formula = 'O2'
                     coef    = reagent['coefficient'] 
@@ -110,7 +92,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
                     print('Compound {} is not included.'.format(formula))
 
                 if not formula in df_rxn.columns:
-                    df_rxn.insert(len(df_rxn.columns),formula,None,True)
+                    temp = ['0']*df_rxn.shape[0]
+                    df_rxn.insert(len(df_rxn.columns),formula,temp,True)
                     df_rxn[formula].iloc[reaction_idx] = coef
                 else:
                     df_rxn[formula].iloc[reaction_idx] = coef
@@ -250,8 +233,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         self.output_files.append(
             {'path': stoi_csv_fba,
-             'name': os.path.basename(stoi_csv_fba),
-             'label': os.path.basename(stoi_csv_fba),
+             'name': 'Reaction network',
+             'label': 'Reaction network',
              'description': 'reactions stoichiometry table'}
         )      
         self.output_files.append(
