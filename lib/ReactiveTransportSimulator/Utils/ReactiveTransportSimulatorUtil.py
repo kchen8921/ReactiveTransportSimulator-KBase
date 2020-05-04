@@ -189,7 +189,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # generate batch input deck
         self.generate_batch_input_deck(batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
-        self.generate_pflotran_input_batch(batch_deck_temp,stoi_csv_fba,init_cond,pflotran_input,tot_time,timestep,temperature)
+        self.generate_pflotran_input_batch(batch_deck_temp,stoi_csv_fba,cpd_csv_fba,pflotran_input,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
