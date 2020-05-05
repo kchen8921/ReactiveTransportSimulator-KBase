@@ -474,7 +474,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         primary_species_charge = []
         primary_species_nocharge = []
         for spec in list(rxn_df.columns):
-            if spec in ['rxn_id','DOC_formula','rxn_ref','H2O','BIOMASS']:
+            if spec in ['rxn_id','DOC_formula','rxn_ref','H2O']:
                 continue
             primary_species_nocharge.append(spec)
             if spec=='NH4':
