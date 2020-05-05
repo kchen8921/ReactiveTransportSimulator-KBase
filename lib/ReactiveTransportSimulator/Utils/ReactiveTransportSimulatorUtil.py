@@ -457,7 +457,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         rxn_df = pd.read_csv(stoi_file)
         primary_species = list(rxn_df.columns)
         primary_species.remove('rxn_id')
-        primary_species.remove('DOC_name')
+        primary_species.remove('DOC_formula')
         primary_species.remove('rxn_ref')
         primary_species.remove('H2O')
         sandbox_file = open(sb_file,'w+')
