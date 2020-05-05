@@ -855,7 +855,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
       k_deg_scaled = this%k_deg * temperature_scaling_factor
     '''
 
-        sb = sb+self.generate_rate_expression(primary_species_charge, stoi_file, rxn_name)
+        sb = sb+self.generate_rate_expression(primary_species_nocharge, stoi_file, rxn_name)
 
         sb = sb+'''
     end subroutine {}React
@@ -883,10 +883,9 @@ class ReactiveTransportSimulatorRunBatchUtil:
         return
 
 
-    def generate_rate_expression(self,primary_species, stoi_file, rxn_name):
+    def generate_rate_expression(self,primary_species_nocharge, stoi_file, rxn_name):
         rxn_df = pd.read_csv(stoi_file)
         rxn_df = rxn_df.set_index('rxn_ref')
-        species_namelist = primary_species
 
         rkin = {}
         for i in range(len(rxn_df)):
@@ -921,10 +920,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
             rate.append('  rate(' + str(i+1) + ') = u' + str(i+1) + '*r' + str(i+1) + 'kin*(1-C_biomass/this%cc)')
 
         res = {}
-        for i in species_namelist:
+        for i in primary_species_nocharge:
             icol = rxn_df.columns.get_loc(i)
-            i = re.sub('[(]','_',i)
-            i = re.sub('[-+)]','',i)
             i = i.lower()
             i_id = 'this%'+i+'_id'
 
@@ -954,10 +951,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
 
         mass = {}
-        for i in species_namelist:
+        for i in primary_species_nocharge:
             icol = rxn_df.columns.get_loc(i)
-            i = re.sub('[(]','_',i)
-            i = re.sub('[-+)]','',i)
             i = i.lower()
             i_id = i.upper()
 
