@@ -45,6 +45,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # # copy pflotran input deck for test
         batch_deck_temp  = os.path.join(self.data_folder,'batch_template.in')
+        pflotran_input_temp = os.path.join(self.data_folder,'batch_template1.in')
         pflotran_db_temp = os.path.join(self.data_folder,'database_template.dat')
         batch_deck       = os.path.join(self.scratch_folder,'batch.in')
         pflotran_input   = os.path.join(self.scratch_folder,'batch1.in')
@@ -189,7 +190,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # generate batch input deck
         self.generate_batch_input_deck(batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
-        self.generate_pflotran_input_batch(batch_deck_temp,stoi_csv_fba,cpd_csv_fba,pflotran_input,tot_time,timestep,temperature)
+        self.generate_pflotran_input_batch(pflotran_input_temp,stoi_csv_fba,cpd_csv_fba,pflotran_input,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
@@ -1046,32 +1047,46 @@ class ReactiveTransportSimulatorRunBatchUtil:
         file = open(batch_file,'r')
         rxn_df = pd.read_csv(stoi_file)
         init_df = pd.read_csv(init_file)
-
+    
         primary_species = list(rxn_df.columns)
         primary_species.remove('rxn_id')
         primary_species.remove('DOC_formula')
         primary_species.remove('rxn_ref')
         primary_species.remove('H2O')
         primary_species.remove('BIOMASS')
-        print(init_df.columns)
         init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species]
         init_biom = init_df.loc[init_df['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
         for idx,val in enumerate(primary_species):
             print("The initial concentration of {} is {} mol/L \n".format(val,init_cond[idx]))
-            
+
+        primary_species_charge = []
+        for spec in list(rxn_df.columns):
+            if spec in ['rxn_id','DOC_formula','rxn_ref','H2O','BIOMASS']:
+                continue
+            if spec=='NH4':
+                primary_species_charge.append('NH4+')
+            if spec=='HCO3':
+                primary_species_charge.append('HCO3-')
+            if spec=='H':
+                primary_species_charge.append('H+')
+            if spec=='HS':
+                primary_species_charge.append('HS-')
+            if spec=='HPO4':
+                primary_species_charge.append('HPO4-')  
+
         pri_spec = ""
         pri_spec_init = ""
         new_file_content = ""
         for line in file:           
             if 'PRIMARY_SPECIES' in line:
                 new_file_content += line
-                for i in primary_species:
+                for i in primary_species_charge:
                     pri_spec += "    " + i + "\n"  
                 new_file_content += "    " + pri_spec + "\n" 
             elif '  CONCENTRATIONS' in line:
                 new_file_content += line
-                for j in range(len(primary_species)):
-                    pri_spec_init += "    {}        {}.d0 T".format(primary_species[j],init_cond[j])+ "\n"
+                for j in range(len(primary_species_charge)):
+                    pri_spec_init += "    {}        {}.d0 T".format(primary_species_charge[j],init_cond[j])+ "\n"
                 new_file_content += pri_spec_init + "\n" 
             elif 'IMMOBILE' in line:
                 new_file_content += "    BIOMASS    {}d0 ".format(init_biom) + "\n" 
@@ -1167,14 +1182,15 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 for i in primary_species:
                     pri_spec += "    " + i + "\n"  
                 new_file_content += "    " + pri_spec + "\n" 
-            elif '  CONCENTRATIONS' in line:
-                new_file_content += line
+            elif 'CONSTRAINT initial' in line:
+                new_file_content += line + "\n"
+                new_file_content += "  CONCENTRATIONS" + "\n"
                 for j,j_val in enumerate(primary_species):
                     pri_spec_init += "    {}        {}.d0 T".format(primary_species[j],init_vals[j])+ "\n"
-                new_file_content += pri_spec_init + "\n" 
-            elif 'IMMOBILE' in i_val:
-                new_file_content += "    BIOMASS    {}d0 ".format(init_biom) + "\n" 
-                
+                new_file_content += "  /" 
+                new_file_content += "  IMMOBILE" + "\n"
+                new_file_content += "    BIOMASS        {}.d0 T".format(init_biom) + + "\n"
+                new_file_content += "  /"                
             elif 'FINAL_TIME' in line:
                 new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
                 
