@@ -1052,13 +1052,19 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 for i in primary_species_charge:
                     pri_spec += "    " + i + "\n"  
                 new_file_content += "    " + pri_spec + "\n" 
-            elif '  CONCENTRATIONS' in line:
-                new_file_content += line
-                for j in range(len(primary_species_charge)):
+                
+            elif 'CONSTRAINT initial' in line:
+                new_file_content += line + "\n"
+                new_file_content += "  CONCENTRATIONS" + "\n"
+                for j,j_val in enumerate(primary_species_charge):
                     pri_spec_init += "    {}        {}.d0 T".format(primary_species_charge[j],init_cond[j])+ "\n"
-                new_file_content += pri_spec_init + "\n" 
-            elif 'IMMOBILE' in line:
-                new_file_content += "    BIOMASS    {}d0 ".format(init_biom) + "\n" 
+                new_file_content += "  /" 
+                new_file_content += "  IMMOBILE" + "\n"
+                new_file_content += "    BIOMASS        {}.d0 T".format(init_biom) + "\n"
+                new_file_content += "  /"   
+
+            elif 'FINAL_TIME' in line:
+                new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
                 
             elif 'FINAL_TIME' in line:
                 new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
