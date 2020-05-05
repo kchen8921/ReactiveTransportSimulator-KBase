@@ -1054,6 +1054,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 new_file_content += "    " + pri_spec + "\n" 
 
             elif 'CONSTRAINT initial' in line:
+                new_file_content += line
                 new_file_content += "  CONCENTRATIONS" + "\n"
                 for j in range(len(primary_species_charge)):
                     new_file_content += "    {}        {}.d0 T".format(primary_species_charge[j],init_cond[j])+ "\n"
