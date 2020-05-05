@@ -44,14 +44,10 @@ class ReactiveTransportSimulatorRunBatchUtil:
             print ("Successfully created the directory %s " % self.scratch_folder)
 
         # # copy pflotran input deck for test
-        batch_deck_temp  = os.path.join(self.data_folder,'batch_template.in')
-        pflotran_input_temp = os.path.join(self.data_folder,'batch_template1.in')
+        pflotran_input_temp = os.path.join(self.data_folder,'batch_template.in')
         pflotran_db_temp = os.path.join(self.data_folder,'database_template.dat')
-        batch_deck       = os.path.join(self.scratch_folder,'batch.in')
-        pflotran_input   = os.path.join(self.scratch_folder,'batch1.in')
-        db               = os.path.join(self.scratch_folder,'database.dat')
-        pflotran_db      = os.path.join(self.scratch_folder,'database1.dat')
-        comps            = os.path.join(self.data_folder,'temp_comps.tsv')
+        pflotran_input   = os.path.join(self.scratch_folder,'batch.in')
+        pflotran_db      = os.path.join(self.scratch_folder,'database.dat')
         stoi_csv_fba     = os.path.join(self.scratch_folder,'rxn_fba.csv')
         cpd_csv_fba      = os.path.join(self.scratch_folder,'cpd_fba.csv')
         # read FBA model and generate stoi table
@@ -110,63 +106,23 @@ class ReactiveTransportSimulatorRunBatchUtil:
         print(df_rxn.head())
         df_rxn.to_csv(stoi_csv_fba,index=False)
         print("Selected reactions saved. \n")
-        # stoich_by_reactions = []
-        # for reaction in fba_model['data']['modelreactions']:
-        #     stoich = dict()
-        #     stoich["id"] = reaction["id"]
-        #     for reagent in reaction["modelReactionReagents"]:
-        #         cpdid = reagent['modelcompound_ref'].split('/id/')[1]
-        #         if "acceptor" in cpdid:
-        #             stoich["acceptor"] = reagent['coefficient']
-        #         elif "biom" in cpdid:
-        #             stoich["biom"] = reagent['coefficient']
-        #         elif "xcpd" in cpdid:
-        #             stoich["donor"] = reagent['coefficient']
-        #             formula = cpdid2formula[cpdid]
-        #             stoich["formula"] = formula
-        #             num_carbon = re.search('C(\d*)', formula)
-        #             if num_carbon:
-        #                 n_element = num_carbon.group(1)
-        #                 if n_element=='': stoich["C"] = 1
-        #                 else: stoich["C"] = int(n_element)
-        #     stoich_by_reactions.append(stoich)
-
 
 
         # read initial condition from /bin/module/data
-        init_cond = os.path.join(self.data_folder,'temp_cpd_initcond.csv')
+        init_cond = cpd_csv_fba
 
 
-        stoi_json = os.path.join(self.data_folder,'63.json')
-        stoi_csv = os.path.join(self.scratch_folder,'rxn.csv')
         nrxn = int(self.params['subset_size'])
         tot_time = float(self.params['simulation_time'])
         timestep = float(self.params['output_period'])
         temperature = float(self.params['temperature'])
-        # input_deck_des = os.path.join(self.scratch_folder,'batch.in')
-        # database_des = os.path.join(self.scratch_folder,'database.dat')
-        # print('input_deck_des:',input_deck_des)
-        # copy(input_deck_src,self.scratch_folder)  
-        # copy(database_src,self.scratch_folder)      
-        # if os.path.isfile(input_deck_des):
-        #     print ("Input deck exist")
-        # else:
-        #     print ("Input deck not exist")
-        # if os.path.isfile(database_des):
-        #     print ("Database exist")
-        # else:
-        #     print ("Database exist")
-        
-        
-        # generate stoichiometry table from FBA model
-        self.generate_stoi_table_json(stoi_json,comps,stoi_csv,nrxn)
-        # print("Stoi table generated.")
+
 
         # generate sandbox file
         sb_file = os.path.join(self.scratch_folder,'reaction_sandbox_pnnl_cyber.F90')
         var = ['mu_max','vh','k_deg','cc','activation_energy','reference_temperature']
         var_unit = ['1/sec','m^3','1/sec','M','J/mol','K']
-        self.generate_sandbox_code(nrxn,var,var_unit,sb_file,stoi_csv)
+        self.generate_sandbox_code(nrxn,var,var_unit,sb_file,stoi_csv_fba)
         print("Sandbox file generated.")
 
         # format sandbox fortran code
@@ -178,8 +134,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
         # copy sandbox file to src dir and recompile pflotran
         src_dir = '/bin/pflotran/src/pflotran'
         copy(sb_file,src_dir)
-#        sb_test = os.path.join(self.data_folder,'reaction_sandbox_pnnl_cyber.F90')
-#        copy(sb_test,src_dir)
         print(os.getcwd())
         compile_pflotran_cmd = 'sh ./data/compile.sh'
         process = subprocess.Popen(compile_pflotran_cmd.split(), stdout=subprocess.PIPE)
@@ -189,18 +143,16 @@ class ReactiveTransportSimulatorRunBatchUtil:
         pprint(os.listdir(self.scratch_folder))
 
         # generate batch input deck
-        self.generate_batch_input_deck(batch_deck_temp,stoi_csv,comps,init_cond,batch_deck,tot_time,timestep,temperature)
         self.generate_pflotran_input_batch(pflotran_input_temp,stoi_csv_fba,cpd_csv_fba,pflotran_input,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
-        self.update_database(stoi_csv,pflotran_db_temp,db)
         self.update_pflotran_database(stoi_csv_fba,pflotran_db_temp,pflotran_db)
         print("Database generated.")
 
         # running pflotran
         exepath = '/bin/pflotran/src/pflotran/pflotran'
-        run_pflotran_cmd = exepath + ' -n 1 -pflotranin ' + batch_deck
+        run_pflotran_cmd = exepath + ' -n 1 -pflotranin ' + pflotran_input
         process = subprocess.Popen(run_pflotran_cmd.split(), stdout=subprocess.PIPE)
         output, error = process.communicate()
         print("Running PFLOTRAN output:",output[-300:])
@@ -257,13 +209,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
              'name': os.path.basename(sb_file),
              'label': os.path.basename(sb_file),
              'description': 'Sandbox source code'}
-        )       
-        self.output_files.append(
-            {'path': batch_deck,
-             'name': os.path.basename(batch_deck),
-             'label': os.path.basename(batch_deck),
-             'description': 'Batch reaction input deck for PFLOTRAN'}
-        )           
+        )              
         self.output_files.append(
             {'path': pflotran_input,
              'name': os.path.basename(pflotran_input),

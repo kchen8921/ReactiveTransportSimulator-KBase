@@ -146,11 +146,7 @@ END
 
 #=========================== constraints ======================================
 CONSTRAINT initial
-  CONCENTRATIONS
-  /
-  IMMOBILE
-    BIOMASS    1.d0 
-  /
+
 END
 
 
