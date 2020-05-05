@@ -859,17 +859,17 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
     def generate_rate_expression(self,primary_species, stoi_file, rxn_name):
         rxn_df = pd.read_csv(stoi_file)
-        rxn_df = rxn_df.set_index('alias')
+        rxn_df = rxn_df.set_index('rxn_ref')
         species_namelist = primary_species
 
         rkin = {}
         for i in range(len(rxn_df)):
     #         doc_name = rxn_df.iloc[i,0]
     #         doc_name = re.sub('[-+)]','',doc_name)
-            doc_name = rxn_df['DOC_name'].iloc[i] 
+            doc_name = rxn_df['DOC_formula'].iloc[i] 
             doc_name = doc_name.lower()
             print(doc_name)
-            doc_sto = rxn_df[rxn_df['DOC_name'].loc['r'+str(i+1)]].loc['r'+str(i+1)]
+            doc_sto = rxn_df[rxn_df['DOC_formula'].loc['r'+str(i+1)]].loc['r'+str(i+1)]
             o2_sto = rxn_df['O2'].loc['r'+str(i+1)]
             rdoc_i = '  r'+str(i+1)+'doc = '+'exp('+str(doc_sto)+'/(this%vh * C_' + doc_name+'))'
             ro2_i = '  r'+str(i+1)+'o2 = '+'exp('+str(o2_sto)+'/(this%vh * C_o2))'
