@@ -1,7 +1,7 @@
 #
 # Define basic display information
 #
-name     : Run Batch Reaction Model with PFLOTRAN 
+name     : RTMBatch 
 
 tooltip  : |
     Upload FBA model and initial conditions to define a batch reaction model with PFLOTRAN in KBase
