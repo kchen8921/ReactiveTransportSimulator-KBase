@@ -357,7 +357,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 <img src="" alt="Time series plot" height="360" width="480"></img>
                 </body>
                 </html>
-            """
+            """)
 
         with open(html_file, 'r') as f:
             print("html_file:",f.readlines())
