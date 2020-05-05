@@ -326,24 +326,8 @@ class ReactiveTransportSimulatorRunBatchUtil:
             print ("PFLOTRAN output does not exist")
         print("figpath:",pflotran_out_path)
 
-        # copy(fig_path,'/kb/module/work/tmp/output')
-        # copy(pflotran_out_path,'/kb/module/work/tmp/output')
-        # with open(html_file, 'w') as f:
-        #     f.write("""
-        #         <!DOCTYPE html>
-        #         <html>
-        #         <body>
-
-        #         <h1>PFLOTRAN-KBbase</h1>
-        #         <p>PFLOTRAN output</p>
-        #         <embed src="batch.out" width="480" height="960">
-        #         <p>Visulize PFLOTRAN output</p>
-        #         <img src="{}" alt="Time series plot" height="360" width="480"></img>
-        #         </body>
-        #         </html>
-        #     """.format(fig_name))
-
-#test
+        copy(fig_path,'/kb/module/work/tmp/output')
+        copy(pflotran_out_path,'/kb/module/work/tmp/output')
         with open(html_file, 'w') as f:
             f.write("""
                 <!DOCTYPE html>
@@ -354,10 +338,11 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 <p>PFLOTRAN output</p>
                 <embed src="batch.out" width="480" height="960">
                 <p>Visulize PFLOTRAN output</p>
-                <img src="" alt="Time series plot" height="360" width="480"></img>
+                <img src="{}" alt="Time series plot" height="360" width="480"></img>
                 </body>
                 </html>
-            """)
+            """.format(fig_name))
+
 
         with open(html_file, 'r') as f:
             print("html_file:",f.readlines())
@@ -1099,106 +1084,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 new_db_content += line
             else:
                 for i in rxn_df['DOC_formula'].values:
-                    doc_db += "'{}'".format(i)+" 3.0 0.0 100" + '\n'
-                new_db_content += doc_db
-        
-        writing_file = open(dbase_out_file, "w")
-        writing_file.write(new_db_content)
-        writing_file.close()
-        print('The database is updated.')
-        return
-# old
-    def generate_batch_input_deck(self,batch_file,stoi_file,comps_file,init_file,output_file,tot_time,timestep,temp):
-        file = open(batch_file,'r')
-        rxn_df = pd.read_csv(stoi_file)
-        init_df = pd.read_csv(init_file)
-        comps_df = pd.read_csv(comps_file, sep='\t', header=0)
-
-        primary_species = list(rxn_df.columns)
-        primary_species.remove('id')
-        primary_species.remove('DOC_name')
-        primary_species.remove('alias')
-        primary_species.remove('H2O')
-        init_vals = []
-        for i,i_val in enumerate(primary_species):
-            if i_val == 'HCO3-':
-                init_val = init_df.loc[init_df['formula']=='HCO3']['init'].values[0]
-                init_vals.append(init_val)
-            elif i_val == 'NH4+':
-                init_val = init_df.loc[init_df['formula']=='NH4']['init'].values[0]
-                init_vals.append(init_val)            
-            elif i_val == 'HPO4-':
-                init_val = init_df.loc[init_df['formula']=='HPO4']['init'].values[0]
-                init_vals.append(init_val)    
-            elif i_val == 'H+':
-                init_val = init_df.loc[init_df['formula']=='H']['init'].values[0]
-                init_vals.append(init_val) 
-            elif i_val == 'HS-':
-                init_val = init_df.loc[init_df['formula']=='HS']['init'].values[0]
-                init_vals.append(init_val) 
-            elif i_val == 'BIOMASS':
-                biom_idx = i
-                biomass_name = comps_df.loc[comps_df['id']=='biom_c0']
-                init_biom = init_df.loc[init_df['formula']==biomass_name['formula'].values[0]]['init'].values[0]
-            else:
-                init_val = init_df.loc[init_df['formula']==i_val]['init'].values[0]
-                init_vals.append(init_val)         
-            
-            print("The initial condition of {} is {} M".format(i,init_val))
-            
-        del primary_species[biom_idx]
-        pri_spec = ""
-        pri_spec_init = ""
-        new_file_content = ""
-        for line in file:
-            
-            if 'PRIMARY_SPECIES' in line:
-                new_file_content += line
-                for i in primary_species:
-                    pri_spec += "    " + i + "\n"  
-                new_file_content += "    " + pri_spec + "\n" 
-            elif 'CONSTRAINT initial' in line:
-                new_file_content += line + "\n"
-                new_file_content += "  CONCENTRATIONS" + "\n"
-                for j,j_val in enumerate(primary_species):
-                    pri_spec_init += "    {}        {}.d0 T".format(primary_species[j],init_vals[j])+ "\n"
-                new_file_content += "  /" 
-                new_file_content += "  IMMOBILE" + "\n"
-                new_file_content += "    BIOMASS        {}.d0 T".format(init_biom) + "\n"
-                new_file_content += "  /"                
-            elif 'FINAL_TIME' in line:
-                new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
-                
-            elif 'MAXIMUM_TIMESTEP_SIZE' in line:
-                new_file_content += "  MAXIMUM_TIMESTEP_SIZE {} h".format(timestep) + "\n"
-                
-            elif 'PERIODIC TIME' in line:
-                new_file_content += "    PERIODIC TIME {} h".format(timestep) + "\n"        
-                
-            elif 'REFERENCE_TEMPERATURE' in line:
-                new_file_content += "      REFERENCE_TEMPERATURE {} ! degrees C".format(temp) + "\n"
-                
-            else:
-                new_file_content += line  
-                
-        writing_file = open(output_file, "w")
-        writing_file.write(new_file_content)
-        writing_file.close()
-        print('The batch input deck is updated.')
-        return
-
-    def update_database(self,stoi_file,dbase_temp_file,dbase_out_file):
-        rxn_df = pd.read_csv(stoi_file)
-        print(rxn_df['DOC_name'].values)
-        
-        new_db_content = ""
-        doc_db = ""
-        file = open(dbase_temp_file,'r')
-        for line in file:
-            if "'C" not in line:
-                new_db_content += line
-            else:
-                for i in rxn_df['DOC_name'].values:
                     doc_db += "'{}'".format(i)+" 3.0 0.0 100" + '\n'
                 new_db_content += doc_db
         
