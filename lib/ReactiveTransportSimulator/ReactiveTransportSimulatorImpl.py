@@ -78,7 +78,7 @@ class ReactiveTransportSimulator:
         #BEGIN run_batch_model
         params['shared_folder'] = self.shared_folder
         pu = ReactiveTransportSimulatorRun1DUtil(params)
-        output = pu.run_batch_model()
+        output = pu.run_1d_model()
         #END run_batch_model
 
         # At some point might do deeper type checking...
