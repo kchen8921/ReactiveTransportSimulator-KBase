@@ -1189,7 +1189,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
                     pri_spec_init += "    {}        {}.d0 T".format(primary_species[j],init_vals[j])+ "\n"
                 new_file_content += "  /" 
                 new_file_content += "  IMMOBILE" + "\n"
-                new_file_content += "    BIOMASS        {}.d0 T".format(init_biom) + + "\n"
+                new_file_content += "    BIOMASS        {}.d0 T".format(init_biom) + "\n"
                 new_file_content += "  /"                
             elif 'FINAL_TIME' in line:
                 new_file_content += "  FINAL_TIME {} h".format(tot_time) + "\n"
