@@ -471,20 +471,30 @@ class ReactiveTransportSimulatorRunBatchUtil:
     def generate_sandbox_code(self,nrxn,var,var_unit,sb_file,stoi_file):
         rxn_name = 'cyber'
         rxn_df = pd.read_csv(stoi_file)
-        primary_species = list(rxn_df.columns)
-        primary_species.remove('rxn_id')
-        primary_species.remove('DOC_formula')
-        primary_species.remove('rxn_ref')
-        primary_species.remove('H2O')
+        primary_species_charge = []
+        primary_species_nocharge = []
+        for spec in list(rxn_df.columns):
+            if spec in ['rxn_id','DOC_formula','rxn_ref','H2O','BIOMASS']:
+                continue
+            primary_species_nocharge.append(spec)
+            if spec=='NH4':
+                primary_species_charge.append('NH4+')
+                continue
+            if spec=='HCO3':
+                primary_species_charge.append('HCO3-')
+                continue
+            if spec=='H':
+                primary_species_charge.append('H+')
+                continue
+            if spec=='HS':
+                primary_species_charge.append('HS-')
+                continue
+            if spec=='HPO4':
+                primary_species_charge.append('HPO4-')
+                continue
+            primary_species_charge.append(spec)
+
         sandbox_file = open(sb_file,'w+')
-        # primary_species_nosign = [i[:-1] if i[-1]=='-' or i[-1]=='+' else i for i in primary_species]
-        primary_species_nosign = []
-        for species in primary_species:
-            if '+' in species:
-                species = species.replace('+','')
-            if '-' in species:
-                species = species.replace('-','')    
-            primary_species_nosign.append(species)
         sb = '''
     module Reaction_Sandbox_{}_class
 
@@ -503,7 +513,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     '''
         sb = sb.format(rxn_name.capitalize())
 
-        for idx,item in enumerate(primary_species_nosign):
+        for idx,item in enumerate(primary_species_nocharge):
             sb = sb+"  PetscInt, parameter :: {}_MASS_STORAGE_INDEX = {}\n".format(item,idx+1)
 
         sb = sb+'''
@@ -511,7 +521,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         extends(reaction_sandbox_base_type) :: reaction_sandbox_{}_type
     '''.format(rxn_name)
 
-        for idx,item in enumerate(primary_species_nosign):
+        for idx,item in enumerate(primary_species_nocharge):
             sb = sb+"    PetscInt :: {}_id \n".format(item.lower())
 
         for i in var:
@@ -553,7 +563,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
       allocate({}Create)
     '''.format(rxn_name.capitalize(),rxn_name,rxn_name.capitalize(),rxn_name.capitalize())
 
-        for i in primary_species_nosign:
+        for i in primary_species_nocharge:
             sb = sb+"  {}Create%{}_id = UNINITIALIZED_INTEGER \n".format(rxn_name.capitalize(),i.lower())
 
         for i in var:
@@ -666,13 +676,13 @@ class ReactiveTransportSimulatorRunBatchUtil:
       PetscReal, parameter :: per_day_to_per_sec = 1.d0 / 24.d0 / 3600.d0
     '''.format(rxn_name.capitalize(),rxn_name.lower())
 
-        for idx,item in enumerate(primary_species):
+        for idx,item in enumerate(primary_species_charge):
             if item.upper()!='BIOMASS':
                 sb = sb+'''
       word = '{}'
       this%{}_id = &
         GetPrimarySpeciesIDFromName(word,reaction,option)
-        '''.format(item.upper(),primary_species_nosign[idx].lower())
+        '''.format(item.upper(),primary_species_nocharge[idx].lower())
             else:
                 sb = sb+'''
       word = 'BIOMASS'
@@ -689,7 +699,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     end subroutine {}Setup
 
     ! ************************************************************************** !
-    '''.format(len(primary_species)*2,rxn_name.capitalize())
+    '''.format(len(primary_species_charge)*2,rxn_name.capitalize())
 
     #----------------------------------------------------------------------------
     #
@@ -717,12 +727,12 @@ class ReactiveTransportSimulatorRunBatchUtil:
       PetscInt :: indices({})
       PetscInt :: i
 
-    '''.format(rxn_name.capitalize(),rxn_name.lower(),len(primary_species),len(primary_species))
+    '''.format(rxn_name.capitalize(),rxn_name.lower(),len(primary_species_charge),len(primary_species_charge))
 
-        for idx,item in enumerate(primary_species):
+        for idx,item in enumerate(primary_species_charge):
             sb = sb+"  names({}) = '{}'\n".format(idx+1,item.upper())
 
-        for idx,item in enumerate(primary_species_nosign):
+        for idx,item in enumerate(primary_species_nocharge):
             sb = sb+"  indices({}) = {}_MASS_STORAGE_INDEX\n".format(idx+1,item.upper())
 
         sb = sb+'''
@@ -746,7 +756,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     end subroutine {}AuxiliaryPlotVariables
 
     ! ************************************************************************** !
-    '''.format(len(primary_species),len(primary_species),len(primary_species),rxn_name.capitalize())
+    '''.format(len(primary_species_charge),len(primary_species_charge),len(primary_species_charge),rxn_name.capitalize())
 
     #----------------------------------------------------------------------------
     #
@@ -781,7 +791,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
       PetscInt :: i, j, irxn
     '''.format(rxn_name.capitalize(),rxn_name.lower())
 
-        for idx, item in enumerate(primary_species_nosign):
+        for idx, item in enumerate(primary_species_nocharge):
             sb = sb+"  PetscReal :: C_{} \n".format(item.lower()) 
 
         for i in range(nrxn):
@@ -830,7 +840,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
     '''.format(nrxn,rxn_name.capitalize())
 
         sb = sb +"  ! concentrations are molarities [M]"
-        for i in primary_species_nosign:
+        for i in primary_species_nocharge:
             if i.upper()!='BIOMASS':
                 sb = sb+'''
       C_{} = rt_auxvar%pri_molal(this%{}_id)* &
@@ -845,7 +855,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
       k_deg_scaled = this%k_deg * temperature_scaling_factor
     '''
 
-        sb = sb+self.generate_rate_expression(primary_species, stoi_file, rxn_name)
+        sb = sb+self.generate_rate_expression(primary_species_charge, stoi_file, rxn_name)
 
         sb = sb+'''
     end subroutine {}React
@@ -1009,32 +1019,34 @@ class ReactiveTransportSimulatorRunBatchUtil:
         file = open(batch_file,'r')
         rxn_df = pd.read_csv(stoi_file)
         init_df = pd.read_csv(init_file)
-    
-        primary_species = list(rxn_df.columns)
-        primary_species.remove('rxn_id')
-        primary_species.remove('DOC_formula')
-        primary_species.remove('rxn_ref')
-        primary_species.remove('H2O')
-        primary_species.remove('BIOMASS')
-        init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species]
-        init_biom = init_df.loc[init_df['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
-        for idx,val in enumerate(primary_species):
-            print("The initial concentration of {} is {} mol/L \n".format(val,init_cond[idx]))
 
         primary_species_charge = []
+        primary_species_nocharge = []
         for spec in list(rxn_df.columns):
             if spec in ['rxn_id','DOC_formula','rxn_ref','H2O','BIOMASS']:
                 continue
+            primary_species_nocharge.append(spec)
             if spec=='NH4':
                 primary_species_charge.append('NH4+')
+                continue
             if spec=='HCO3':
                 primary_species_charge.append('HCO3-')
+                continue
             if spec=='H':
                 primary_species_charge.append('H+')
+                continue
             if spec=='HS':
                 primary_species_charge.append('HS-')
+                continue
             if spec=='HPO4':
                 primary_species_charge.append('HPO4-')  
+                continue
+            primary_species_charge.append(spec) 
+
+        init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species_nocharge]
+        init_biom = init_df.loc[init_df['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
+        for idx,val in enumerate(primary_species_nocharge):
+            print("The initial concentration of {} is {} mol/L \n".format(val,init_cond[idx]))
 
         pri_spec = ""
         pri_spec_init = ""
