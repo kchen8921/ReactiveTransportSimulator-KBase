@@ -343,6 +343,22 @@ class ReactiveTransportSimulatorRunBatchUtil:
         #         </html>
         #     """.format(fig_name))
 
+#test
+        with open(html_file, 'w') as f:
+            f.write("""
+                <!DOCTYPE html>
+                <html>
+                <body>
+
+                <h1>PFLOTRAN-KBbase</h1>
+                <p>PFLOTRAN output</p>
+                <embed src="batch.out" width="480" height="960">
+                <p>Visulize PFLOTRAN output</p>
+                <img src="" alt="Time series plot" height="360" width="480"></img>
+                </body>
+                </html>
+            """
+
         with open(html_file, 'r') as f:
             print("html_file:",f.readlines())
 
