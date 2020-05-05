@@ -47,13 +47,13 @@ parameters :
         short-hint : |
             Select FBA model with stochiometry 
 
-    input_model_parameters :
+    input_initial_condition :
         ui-name : |
             Select csv file for model parameters  
         short-hint : |
             Select csv file that contain species specific parameters 
 
-    subset_size :
+    number_simulated_reactions :
         ui-name : |
             Select number of reactions to simulate
         short-hint : |
@@ -65,7 +65,7 @@ parameters :
         short-hint : |
             Enter total simulation time (hours)
 
-    output_period :
+    snapshot_period :
         ui-name : |
             Enter time period for output (hours)
         short-hint : |
