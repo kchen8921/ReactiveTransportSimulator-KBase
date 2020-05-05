@@ -3,6 +3,7 @@
 import logging
 import os
 from ReactiveTransportSimulator.Utils.ReactiveTransportSimulatorUtil import ReactiveTransportSimulatorRunBatchUtil
+from ReactiveTransportSimulator.Utils.ReactiveTransportSimulatorUtil import ReactiveTransportSimulatorRun1DUtil
 from installed_clients.KBaseReportClient import KBaseReport
 # from installed_clients.DataFileUtilClient import DataFileUtil
 
@@ -45,7 +46,7 @@ class ReactiveTransportSimulator:
 
     def run_batch_model(self, ctx, params):
         """
-        Thi function enables users to run a pflotran batch model with FBA model and initial conditions as inputs
+        Thi function enables users to run a pflotran batch model using FBA model and user-provided initial condition
         :param params: instance of mapping from String to unspecified object
         :returns: instance of type "ReportResults" -> structure: parameter
            "report_name" of String, parameter "report_ref" of String
@@ -64,6 +65,29 @@ class ReactiveTransportSimulator:
         #                      'output is not type dict as required.')
         # return the results
         return [output]
+
+    def run_1d_model(self, ctx, params):
+        """
+        Thi function enables users to run a pflotran 1d column model using FBA model and user-provided initial and boundary conditions
+        :param params: instance of mapping from String to unspecified object
+        :returns: instance of type "ReportResults" -> structure: parameter
+           "report_name" of String, parameter "report_ref" of String
+        """
+        # ctx is the context object
+        # return variables are: output
+        #BEGIN run_batch_model
+        params['shared_folder'] = self.shared_folder
+        pu = ReactiveTransportSimulatorRun1DUtil(params)
+        output = pu.run_batch_model()
+        #END run_batch_model
+
+        # At some point might do deeper type checking...
+        # if not isinstance(output, dict):
+        #     raise ValueError('Method run_batch_model return value ' +
+        #                      'output is not type dict as required.')
+        # return the results
+        return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
