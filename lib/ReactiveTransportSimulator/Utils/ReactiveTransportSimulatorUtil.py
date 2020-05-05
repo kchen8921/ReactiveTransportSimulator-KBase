@@ -81,7 +81,24 @@ class ReactiveTransportSimulatorRunBatchUtil:
         rxn_ref = ['r'+str(i+1) for i in range(nrxn)]
         df_rxn = pd.DataFrame({'rxn_ref':rxn_ref,'rxn_id':None,'DOC_formula':None})
 
-        selected_reactions = random.choices(fba_model['data']['modelreactions'],k=nrxn)
+        # selected_reactions = random.choices(fba_model['data']['modelreactions'],k=nrxn)
+        selected_reactions = []
+        selected_cpd       = []
+        i = 0
+        while i < nrxn:
+            irxn = random.choice(fba_model['data']['modelreactions'])
+            acceptor_flag = False
+            for reagent in irxn['modelReactionReagents']:
+                cpdid = reagent['modelcompound_ref'].split('/id/')[1]
+                if 'acceptor' in cpdid:
+                    acceptor_flag = True
+                if 'xcpd' in cpdid:
+                    doc = cpdid2formula[cpdid]
+                    selected_cpd.append(doc)      
+            if acceptor_flag and selected_cpd.count(doc) == 1:    
+                selected_reactions.append(irxn)
+                i += 1
+
         for reaction_idx,reaction_val in enumerate(selected_reactions):
             df_rxn['rxn_id'].iloc[reaction_idx] = reaction_val['id']
             for reagent in reaction_val['modelReactionReagents']:
@@ -169,29 +186,7 @@ class ReactiveTransportSimulatorRunBatchUtil:
         self.plot_time_series(h5_file)
         
         
-        # Check PFLOTRAN input deck
-# <<<<<<< HEAD
-        pprint(self.params)
-        # pflotran_model = self.params['PflotranModel_id']
-        # pflotran_model_data = self.dfu.get_objects({'object_refs': [pflotran_model]})['data'][0]
-        # pflotran_model_data_obj = pflotran_model_data['data']
-        # pflotran_model_data_meta = pflotran_model_data['info'][10]
-
-        # pprint(pflotran_model_data_obj)
-        # pprint(pflotran_model_data_meta)
-# =======
-#         # pflotran_model = self.params['input_model']
-#         # hdf5_file = pflotran_model['hdf5_parameters']
-#         # input_deck = pflotran_model['input_deck']
-
-# >>>>>>> parent of 3374f33... run pflotran
-        # Run PFLOTRAN
-
-
-        # Get the output file
-#        self.hdf_output_file = os.path.join(self.shared_folder,'test.h5')
-#        with h5py.File(self.hdf_output_file, 'w') as f:
-#            dset = f.create_dataset("mydataset", (100,), dtype='i')
+        # Attach output
         self.output_files.append(
             {'path': cpd_csv_fba,
              'name': os.path.basename(cpd_csv_fba),
@@ -303,10 +298,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
         return
 
     def visualize_hdf_in_html(self):
-        # Open the HDF5 file
-        # f = h5py.File(self.hdf_output_file, 'r')
-        # shared_folder = self.params['shared_folder']
-        # output_directory = os.path.join(shared_folder, str(uuid.uuid4()))
         output_directory = os.path.join(self.shared_folder,'output') 
         os.makedirs(output_directory)
         print("output dir:", output_directory)
@@ -354,104 +345,6 @@ class ReactiveTransportSimulatorRunBatchUtil:
                 'name': os.path.basename(html_file),
                 'label': os.path.basename(html_file),
                 'description': 'HTML summary report for run_batch_model App'}
-
-    def generate_stoi_table_json(self,stoi_filepath_json,comps_filepath,output_filepath,nreac):
-        df_comps = pd.read_csv(comps_filepath, sep='\t', header=0)
-        with open(stoi_filepath_json) as f:
-            js_stoi = json.load(f)
-
-        # get the index of 'equation' attribute
-        for i,i_val in enumerate(js_stoi["attributes"]):
-            if i_val["attribute"] == "equation":
-                idx_equ = i
-                print("The {}'th attribute is equation'".format(idx_equ))
-                
-        # generate a random list of reaction id 
-        tot_nreac = len(js_stoi["instances"])
-        rxn_id = []
-        for i in range(nreac):
-            rxn_id.append(random.randint(0,tot_nreac-1))
-        
-        # choose the first two reactions for test
-#        rxn_id = [1,2]
-        
-        stoi_id = ['xrxn'+str(i)+'_c0' for i in rxn_id]
-        rxn_alias = ['r'+str(i+1) for i in range(len(rxn_id))]
-        df_rxn = pd.DataFrame({'id':stoi_id,'alias':rxn_alias,'DOC_name':rxn_alias})
-        df_rxn.set_index("alias", inplace=True)
-        for i,i_val in enumerate(stoi_id):
-    #         equ = df_stoi.loc[df_stoi['id']==i_val]['equation']
-            equ = js_stoi["instances"][i_val][idx_equ]
-            print(equ)
-            equ_split = equ.split()
-            reac_flag = False
-
-            for j,j_val in enumerate(equ_split):            
-                if '(' in j_val and ')' in j_val:
-                    # refer to temp_comps.tsv for doc name
-                    if 'xcpd' in equ_split[j+1]:
-                        comps_id = 'xcpd__'+equ_split[j+1][6:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]
-                        df_rxn['DOC_name'].iloc[i] = spec_name
-                    elif 'h2o' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]
-                    elif 'h[c0]' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]+'+'                  
-                    elif 'hco3' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]+'-'
-                    elif 'nh4' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]+'+'
-                    elif 'hpo4' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]+'-'
-                    elif 'hs' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]+'-'                 
-                    elif 'acceptor' in equ_split[j+1]:
-                        comps_id = equ_split[j+1][:-4]+'_c0'
-                        spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]
-                    elif 'biom' in equ_split[j+1]:
-    #                     comps_id = equ_split[j+1][:-4]+'_c0'
-    #                     spec_name = df_comps.loc[df_comps['id']==comps_id]['formula'].values[0]
-                        spec_name = 'BIOMASS'
-                    
-                    # generate stoi table
-                    if spec_name in df_rxn.columns:
-                        if "['"  in j_val:
-                            stoi = j_val[3:-1]
-                        else:
-                            stoi = j_val[1:-1]
-
-                        if reac_flag:
-                            df_rxn[spec_name].iloc[i] = '-'+stoi
-                        else:
-                            df_rxn[spec_name].iloc[i] = stoi
-                    else:
-                        if "['"  in j_val:
-                            stoi = j_val[3:-1]
-                        else:
-                            stoi = j_val[1:-1]
-
-                        temp = ['0']*len(stoi_id)
-                        if reac_flag:
-                            temp[i] =  '-'+stoi
-                            df_rxn.insert(len(df_rxn.columns),spec_name,temp,True)
-                        else:
-                            temp[i] =  stoi
-                            df_rxn.insert(len(df_rxn.columns),spec_name,temp,True)  
-
-                if '<=>' in j_val:
-                    reac_flag = True
-        print(df_rxn.columns)
-        print(df_rxn.head())
-        df_rxn.to_csv(output_filepath)
-        print("File reading completed. \n")
-        
-        return   
  
     def generate_sandbox_code(self,nrxn,var,var_unit,sb_file,stoi_file):
         rxn_name = 'cyber'
