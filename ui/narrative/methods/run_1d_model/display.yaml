@@ -4,7 +4,7 @@
 name     : RTM1D 
 
 tooltip  : |
-    Upload FBA model and initial conditions to define a batch reaction model with PFLOTRAN in KBase
+    1D Reactive Transport Modeling with PFLOTRAN 
 
 screenshots : []
 

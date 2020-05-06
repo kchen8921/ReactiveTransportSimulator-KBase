@@ -4,7 +4,7 @@
 name     : RTMBatch 
 
 tooltip  : |
-    Upload FBA model and initial conditions to define a batch reaction model with PFLOTRAN in KBase
+    Batch Reactive Transport Modeling with PFLOTRAN 
 
 screenshots : []
 
