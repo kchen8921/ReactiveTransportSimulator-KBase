@@ -5,7 +5,7 @@ import os
 from ReactiveTransportSimulator.Utils.ReactiveTransportSimulatorUtil import ReactiveTransportSimulatorRunBatchUtil
 from ReactiveTransportSimulator.Utils.ReactiveTransportSimulatorUtil import ReactiveTransportSimulatorRun1DUtil
 from installed_clients.KBaseReportClient import KBaseReport
-# from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.DataFileUtilClient import DataFileUtil
 
 #END_HEADER
 
