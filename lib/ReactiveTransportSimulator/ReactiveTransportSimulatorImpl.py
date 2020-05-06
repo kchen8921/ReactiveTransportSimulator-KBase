@@ -83,9 +83,9 @@ class ReactiveTransportSimulator:
 
         # At some point might do deeper type checking...
         # if not isinstance(output, dict):
-        #     raise ValueError('Method run_batch_model return value ' +
+        #     raise ValueError('Method run_1d_model return value ' +
         #                      'output is not type dict as required.')
-        # return the results
+
         return [output]
 
     def status(self, ctx):
