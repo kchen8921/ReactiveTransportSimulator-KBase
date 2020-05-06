@@ -45,21 +45,21 @@ class ReactiveTransportSimulatorRunBatchUtil:
 
         # move file templates from data folder to scratch folder 
         pflotran_input_temp = os.path.join(self.data_folder,'batch_template.in')
-        pflotran_db_temp = os.path.join(self.data_folder,'database_template.dat')
-        pflotran_input   = os.path.join(self.scratch_folder,'batch.in')
-        pflotran_db      = os.path.join(self.scratch_folder,'database.dat')
-        stoi_csv_fba     = os.path.join(self.scratch_folder,'rxn_fba.csv')
-        cpd_csv_fba      = os.path.join(self.scratch_folder,'cpd_fba.csv')
+        pflotran_db_temp    = os.path.join(self.data_folder,'database_template.dat')
+        pflotran_input      = os.path.join(self.scratch_folder,'batch.in')
+        pflotran_db         = os.path.join(self.scratch_folder,'database.dat')
+        stoi_csv_fba        = os.path.join(self.scratch_folder,'rxn_fba.csv')
+        cpd_csv_fba         = os.path.join(self.scratch_folder,'cpd_fba.csv')
 
         # read inputs
         print("Input FBA model: ",self.params['input_FBA_model'])
-        dfu = DataFileUtil(self.callback_url)
-        fba_model = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
+        dfu                 = DataFileUtil(self.callback_url)
+        fba_model           = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
         print("FBA model name :",fba_model['data']['name'])
-        nrxn = int(self.params['number_simulated_reactions'])
-        tot_time = float(self.params['simulation_time'])
-        timestep = float(self.params['snapshot_period'])
-        temperature = float(self.params['temperature'])
+        nrxn                = int(self.params['number_simulated_reactions'])
+        tot_time            = float(self.params['simulation_time'])
+        timestep            = float(self.params['snapshot_period'])
+        temperature         = float(self.params['temperature'])
 
         # collect the compound info
         cpdid2formula = dict()
@@ -495,21 +495,24 @@ class ReactiveTransportSimulatorRun1DUtil:
 
         # move file templates from data folder to scratch folder 
         pflotran_input_temp = os.path.join(self.data_folder,'batch_template.in')
-        pflotran_db_temp = os.path.join(self.data_folder,'database_template.dat')
-        pflotran_input   = os.path.join(self.scratch_folder,'batch.in')
-        pflotran_db      = os.path.join(self.scratch_folder,'database.dat')
-        stoi_csv_fba     = os.path.join(self.scratch_folder,'rxn_fba.csv')
-        cpd_csv_fba      = os.path.join(self.scratch_folder,'cpd_fba.csv')
+        pflotran_db_temp    = os.path.join(self.data_folder,'database_template.dat')
+        pflotran_input      = os.path.join(self.scratch_folder,'batch.in')
+        pflotran_db         = os.path.join(self.scratch_folder,'database.dat')
+        stoi_csv_fba        = os.path.join(self.scratch_folder,'rxn_fba.csv')
+        cpd_csv_fba         = os.path.join(self.scratch_folder,'cpd_fba.csv')
 
         # read inputs
         print("Input FBA model: ",self.params['input_FBA_model'])
-        dfu = DataFileUtil(self.callback_url)
-        fba_model = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
+        dfu                 = DataFileUtil(self.callback_url)
+        fba_model           = dfu.get_objects({'object_refs': [self.params['input_FBA_model']]})['data'][0]
         print("FBA model name :",fba_model['data']['name'])
-        nrxn = int(self.params['number_simulated_reactions'])
-        tot_time = float(self.params['simulation_time'])
-        timestep = float(self.params['snapshot_period'])
-        temperature = float(self.params['temperature'])
+        nrxn                = int(self.params['number_simulated_reactions'])
+        velocity            = float(self.params['velocity'])
+        length              = float(self.params['length'])
+        ngrid               = float(self.params['number_grids'])
+        tot_time            = float(self.params['simulation_time'])
+        timestep            = float(self.params['snapshot_period'])
+        temperature         = float(self.params['temperature'])
 
         # collect the compound info
         cpdid2formula = dict()
@@ -521,6 +524,7 @@ class ReactiveTransportSimulatorRun1DUtil:
             else:
                 df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
         df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',1,True)
+        df_cpd.insert(len(df_cpd.columns),'inlet_concentration(mol/L)',1,True)
         df_cpd['formula'].replace('', np.nan, inplace=True)
         df_cpd = df_cpd.dropna()
         df_cpd.to_csv(cpd_csv_fba,index=False)
@@ -580,7 +584,7 @@ class ReactiveTransportSimulatorRun1DUtil:
         print("Selected reactions saved. \n")
 
 
-        # read initial condition from /bin/module/data
+        # read initial and boundary conditions from /bin/module/data
         init_cond = cpd_csv_fba
 
         # generate sandbox file
@@ -607,8 +611,9 @@ class ReactiveTransportSimulatorRun1DUtil:
         print("Complile PFLOTRAN err:",error)
         pprint(os.listdir(self.scratch_folder))
 
-        # generate batch input deck
-        self.generate_pflotran_input_batch(pflotran_input_temp,stoi_csv_fba,cpd_csv_fba,pflotran_input,tot_time,timestep,temperature)
+        # generate 1d input deck
+        self.generate_pflotran_input_1d(pflotran_input_temp,stoi_csv_fba,cpd_csv_fba,
+        pflotran_input,velocity,length,ngrid,tot_time,timestep,temperature)
         print("Batch input deck generated.")
 
         # generate database 
@@ -683,10 +688,11 @@ class ReactiveTransportSimulatorRun1DUtil:
         # Return the report
         return self._generate_html_report()
 
-    def generate_pflotran_input_batch(self,batch_file,stoi_file,init_file,output_file,tot_time,timestep,temp):
-        file = open(batch_file,'r')
+    def generate_pflotran_input_1d(self,template,stoi_file,icbc_file,output_file,
+    velocity,length,ngrid,tot_time,timestep,temp):
+        file = open(template,'r')
         rxn_df = pd.read_csv(stoi_file)
-        init_df = pd.read_csv(init_file)
+        init_df = pd.read_csv(icbc_file)
 
         primary_species_charge = []
         primary_species_nocharge = []
@@ -711,20 +717,34 @@ class ReactiveTransportSimulatorRun1DUtil:
                 continue
             primary_species_charge.append(spec) 
 
-        init_cond = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species_nocharge]
-        init_biom = init_df.loc[init_df['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
+        init_cond   = [init_df.loc[init_df['formula']==i,'initial_concentration(mol/L)'].iloc[0] for i in primary_species_nocharge]
+        init_biom   = init_df.loc[init_df['formula']=='BIOMASS','initial_concentration(mol/L)'].iloc[0]
+        inlet_cond  = [init_df.loc[init_df['formula']==i,'inlet_concentration(mol/L)'].iloc[0] for i in primary_species_nocharge]
+        inlet_biom  = init_df.loc[init_df['formula']=='BIOMASS','inlet_concentration(mol/L)'].iloc[0]
         for idx,val in enumerate(primary_species_nocharge):
             print("The initial concentration of {} is {} mol/L \n".format(val,init_cond[idx]))
+            print("The inlet concentration of {} is {} mol/L \n".format(val,inlet_cond[idx]))
 
         pri_spec = ""
         pri_spec_init = ""
         new_file_content = ""
-        for line in file:           
-            if 'PRIMARY_SPECIES' in line:
+        for line in file:     
+            if 'DATASET' in line:
+                new_file_content += '  DATASET 0.d0 0.d0 {} m/h'.format(velocity) + "\n"
+
+            elif 'NXYZ' in line:
+                new_file_content += '  NXYZ {} 1 1'.format(ngrid) + "\n"
+
+            elif 'PRIMARY_SPECIES' in line:
                 new_file_content += line
                 for i in primary_species_charge:
                     pri_spec += "    " + i + "\n"  
                 new_file_content += "    " + pri_spec + "\n" 
+
+            elif 'BOUNDS' in line:
+                new_file_content += line
+                new_file_content += "    0.d0 0.d0 0.d0" + "\n"
+                new_file_content += "    {}   0.d0 0.d0".format(length) + "\n"
 
             elif 'CONSTRAINT initial' in line:
                 new_file_content += line
@@ -734,6 +754,16 @@ class ReactiveTransportSimulatorRun1DUtil:
                 new_file_content += "  /" + "\n"
                 new_file_content += "  IMMOBILE" + "\n"
                 new_file_content += "    BIOMASS        {}.d0 ".format(init_biom) + "\n"
+                new_file_content += "  /"   
+
+            elif 'CONSTRAINT inlet' in line:
+                new_file_content += line
+                new_file_content += "  CONCENTRATIONS" + "\n"
+                for j in range(len(primary_species_charge)):
+                    new_file_content += "    {}        {}.d0 T".format(primary_species_charge[j],inlet_cond[j])+ "\n"
+                new_file_content += "  /" + "\n"
+                new_file_content += "  IMMOBILE" + "\n"
+                new_file_content += "    BIOMASS        {}.d0 ".format(inlet_biom) + "\n"
                 new_file_content += "  /"   
 
             elif 'FINAL_TIME' in line:

@@ -1,0 +1,190 @@
+#Description: 0D microbial degradation problem with biomass
+
+SIMULATION
+  SIMULATION_TYPE SUBSURFACE
+  PROCESS_MODELS
+    SUBSURFACE_TRANSPORT transport
+      MODE GIRT      
+      OPTIONS
+        NUMERICAL_JACOBIAN
+      /
+    /
+  /
+END
+
+SUBSURFACE
+
+#=========================== debug ========================================
+
+#=========================== flow mode ========================================
+# Uniform velocity (see below). No flow mode specified.
+
+#=========================== useful tranport parameters ==================
+SPECIFIED_VELOCITY
+  UNIFORM? YES
+  DATASET 0.d0 0.d0 -182.5d0 m/y
+END
+REFERENCE_TEMPERATURE 25.d0 C
+
+#=========================== chemistry ========================================
+# Uncomment to debug reactions
+#NUMERICAL_JACOBIAN_RXN
+CHEMISTRY
+  PRIMARY_SPECIES
+  /
+  IMMOBILE_SPECIES
+    BIOMASS
+  /
+  REACTION_SANDBOX
+    CYBERNETIC
+      VH 1.d0 m^3
+      MU_MAX 1.d0 1/d
+      K_DEG  0.d0 1/d
+      CC 1.d5 M
+      REFERENCE_TEMPERATURE 25.d0 ! degrees C
+      ACTIVATION_ENERGY 89.d-3 kJ/mol  ! 89.d0 J/mol
+    /
+  /
+  DATABASE ./database.dat
+  LOG_FORMULATION
+  ACTIVITY_COEFFICIENTS OFF
+  TRUNCATE_CONCENTRATION 1.d-40
+  OUTPUT
+    ALL
+    TOTAL
+    AUXILIARY
+  /
+END
+
+#=========================== solver options ===================================
+NEWTON_SOLVER TRANSPORT
+  MAXIT 12
+END
+
+LINEAR_SOLVER TRANSPORT
+  SOLVER DIRECT
+END
+#=========================== discretization ===================================
+GRID
+  TYPE structured
+  NXYZ 1 1 1
+  BOUNDS
+  /
+END
+
+#=========================== fluid properties =================================
+FLUID_PROPERTY
+  DIFFUSION_COEFFICIENT 1.e-9
+END
+
+#=========================== material properties ==============================
+MATERIAL_PROPERTY soil1
+  ID 1
+  POROSITY 1.d0
+  TORTUOSITY 1.d0
+END
+
+#=========================== output options ===================================
+OUTPUT
+#  VELOCITY_AT_CENTER
+#  TIMES y 5. 10. 15. 20.
+#  FORMAT HDF5
+#  PERIODIC_OBSERVATION TIMESTEP 1
+
+  SNAPSHOT_FILE
+    PERIODIC TIME 1.0 d
+    FORMAT HDF5 
+  /
+END
+
+#=========================== times ============================================
+TIME
+#  To match Hyun's model, must run to 10 years
+  FINAL_TIME 100.d0 d
+  INITIAL_TIMESTEP_SIZE 1.d0 s
+  MAXIMUM_TIMESTEP_SIZE 1.d0 d
+END
+
+#=========================== regions ==========================================
+REGION all
+  COORDINATES
+    -1.d20 -1.d20 -1.d20
+    1.d20 1.d20 1.d20
+  /
+END
+
+REGION inlet
+  COORDINATES
+    0.d0 -1.d20 -1.d20
+    0.d0 1.d20 1.d20
+  /
+END
+#=========================== observation points ===============================
+#OBSERVATION
+#  REGION pt
+#END
+
+#=========================== flow conditions ==================================
+
+#MINIMUM_HYDROSTATIC_PRESSURE -1.d0
+
+#FLOW_CONDITION initial
+#  TYPE
+#    PRESSURE HYDROSTATIC
+#  /
+#
+#  PRESSURE 101325.d0
+#END
+
+
+#=========================== transport conditions =============================
+TRANSPORT_CONDITION initial
+  TYPE ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.d0 initial
+  /
+END
+
+TRANSPORT_CONDITION inlet
+  TYPE ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.d0 inlet
+  /
+END
+
+
+#=========================== constraints ======================================
+CONSTRAINT initial
+
+END
+
+CONSTRAINT inlet
+
+END
+#=========================== condition couplers ===============================
+# initial condition
+INITIAL_CONDITION
+#  FLOW_CONDITION initial
+  TRANSPORT_CONDITION initial
+  REGION all
+END
+
+#BOUNDARY_CONDITION outlet
+#  FLOW_CONDITION flow_bottom
+#  TRANSPORT_CONDITION initial
+#  REGION bottom
+#END
+
+BOUNDARY_CONDITION inlet
+#  FLOW_CONDITION flow_top
+  TRANSPORT_CONDITION inlet
+  REGION inlet
+END
+
+#=========================== stratigraphy couplers ============================
+STRATA
+  REGION all
+  MATERIAL soil1
+END
+
+END_SUBSURFACE

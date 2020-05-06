@@ -27,7 +27,7 @@
             }
         },
         {
-            "id": "input_initial_condition",
+            "id": "input_initial_boundary_condition",
             "optional": true,
             "advanced": false,
             "allow_multiple": false,
@@ -43,6 +43,30 @@
             "advanced": false,
             "allow_multiple": false,
             "default_values": ["2"],
+            "field_type": "text"
+        },
+        {
+            "id": "velocity",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["10"],
+            "field_type": "text"
+        },
+        {
+            "id": "length",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["1"],
+            "field_type": "text"
+        },
+        {
+            "id": "number_grids",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["100"],
             "field_type": "text"
         },
         {
@@ -85,12 +109,24 @@
                     "target_type_transform": "resolved-ref"
                 },
                 {
-                    "input_parameter": "input_initial_condition",
-                    "target_property": "input_initial_condition"
+                    "input_parameter": "input_initial_boundary_condition",
+                    "target_property": "input_initial_boundary_condition"
                 },
                 {
                     "input_parameter": "number_simulated_reactions",
                     "target_property": "number_simulated_reactions"
+                },
+                {
+                    "input_parameter": "velocity",
+                    "target_property": "velocity"
+                },
+                {
+                    "input_parameter": "length",
+                    "target_property": "length"
+                },
+                {
+                    "input_parameter": "number_grids",
+                    "target_property": "number_grids"
                 },
                 {
                     "input_parameter": "simulation_time",

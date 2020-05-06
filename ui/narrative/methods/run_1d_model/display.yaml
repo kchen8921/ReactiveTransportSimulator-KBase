@@ -47,7 +47,7 @@ parameters :
         short-hint : |
             Select FBA model with stochiometry 
 
-    input_initial_condition :
+    input_initial_boundary_condition :
         ui-name : |
             Select csv file for model parameters  
         short-hint : |
@@ -58,6 +58,24 @@ parameters :
             Select number of reactions to simulate
         short-hint : |
             Select number of reactions to simulate
+
+    velocity :
+        ui-name : |
+            Enter velocity (m/h)
+        short-hint : |
+            Enter velocity (m/h)
+
+    length :
+        ui-name : |
+            Enter column length (m)
+        short-hint : |
+            Enter column length (m)
+
+    number_grids :
+        ui-name : |
+            Enter number of grids
+        short-hint : |
+            Enter number of grids
 
     simulation_time :
         ui-name : |
