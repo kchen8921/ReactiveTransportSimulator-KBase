@@ -27,7 +27,7 @@ class ReactiveTransportSimulator:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kchen8921/ReactiveTransportSimulator-KBase.git"
-    GIT_COMMIT_HASH = "c18310a29104053f0b99f5c8f7ba8f80cdbb5b34"
+    GIT_COMMIT_HASH = "910855e422121dcaf15c162311d38d099daad2e0"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -87,6 +87,7 @@ class ReactiveTransportSimulator:
                              'output is not type dict as required.')
         # return the results
         return [output]
+        
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

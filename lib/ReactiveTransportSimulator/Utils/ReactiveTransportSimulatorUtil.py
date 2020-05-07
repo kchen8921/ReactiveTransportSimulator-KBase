@@ -494,9 +494,9 @@ class ReactiveTransportSimulatorRun1DUtil:
             print ("Successfully created the directory %s " % self.scratch_folder)
 
         # move file templates from data folder to scratch folder 
-        pflotran_input_temp = os.path.join(self.data_folder,'batch_template.in')
+        pflotran_input_temp = os.path.join(self.data_folder,'column_template.in')
         pflotran_db_temp    = os.path.join(self.data_folder,'database_template.dat')
-        pflotran_input      = os.path.join(self.scratch_folder,'batch.in')
+        pflotran_input      = os.path.join(self.scratch_folder,'column.in')
         pflotran_db         = os.path.join(self.scratch_folder,'database.dat')
         stoi_csv_fba        = os.path.join(self.scratch_folder,'rxn_fba.csv')
         cpd_csv_fba         = os.path.join(self.scratch_folder,'cpd_fba.csv')
