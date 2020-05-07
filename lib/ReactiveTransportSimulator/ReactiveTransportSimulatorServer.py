@@ -342,10 +342,10 @@ class Application(object):
                              name='ReactiveTransportSimulator.run_batch_model',
                              types=[dict])
         self.method_authentication['ReactiveTransportSimulator.run_batch_model'] = 'required'  # noqa
-        # self.rpc_service.add(impl_ReactiveTransportSimulator.run_1d_model,
-        #                      name='ReactiveTransportSimulator.run_1d_model',
-        #                      types=[dict])
-        # self.method_authentication['ReactiveTransportSimulator.run_1d_model'] = 'required'  # noqa
+        self.rpc_service.add(impl_ReactiveTransportSimulator.run_1d_model,
+                             name='ReactiveTransportSimulator.run_1d_model',
+                             types=[dict])
+        self.method_authentication['ReactiveTransportSimulator.run_1d_model'] = 'required'  # noqa
         self.rpc_service.add(impl_ReactiveTransportSimulator.status,
                              name='ReactiveTransportSimulator.status',
                              types=[dict])
