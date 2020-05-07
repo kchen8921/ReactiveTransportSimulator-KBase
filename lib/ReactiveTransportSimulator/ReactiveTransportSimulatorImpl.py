@@ -27,7 +27,7 @@ class ReactiveTransportSimulator:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kchen8921/ReactiveTransportSimulator-KBase.git"
-    GIT_COMMIT_HASH = "be1644694db26d1b53ee55577776628b35742ac7"
+    GIT_COMMIT_HASH = "910855e422121dcaf15c162311d38d099daad2e0"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
