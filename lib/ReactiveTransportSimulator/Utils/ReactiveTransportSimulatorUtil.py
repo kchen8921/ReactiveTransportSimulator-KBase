@@ -743,8 +743,8 @@ class ReactiveTransportSimulatorRun1DUtil:
 
             elif 'BOUNDS' in line:
                 new_file_content += line
-                new_file_content += "    0.d0 0.d0 0.d0" + "\n"
-                new_file_content += "    {}   0.d0 0.d0".format(length) + "\n"
+                new_file_content += "    0.d0 -1.d20 -1.d20" + "\n"
+                new_file_content += "    {}   1.d20 1.d20".format(length) + "\n"
 
             elif 'CONSTRAINT initial' in line:
                 new_file_content += line
