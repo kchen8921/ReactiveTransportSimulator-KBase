@@ -523,8 +523,8 @@ class ReactiveTransportSimulatorRun1DUtil:
                 df_cpd = df_cpd.append({'formula':'BIOMASS'}, ignore_index=True)
             else:
                 df_cpd = df_cpd.append({'formula':compound['formula']}, ignore_index=True)
-        df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',0,True)
-        df_cpd.loc[df_cpd.formula == 'BIOMASS', 'initial_concentration(mol/L)'] = 0.01
+        df_cpd.insert(len(df_cpd.columns),'initial_concentration(mol/L)',0.01,True)
+        df_cpd.loc[df_cpd.formula == 'BIOMASS', 'initial_concentration(mol/L)'] = 0.001
         df_cpd.insert(len(df_cpd.columns),'inlet_concentration(mol/L)',1,True)
         df_cpd.loc[df_cpd.formula == 'BIOMASS', 'inlet_concentration(mol/L)'] = 0
         df_cpd['formula'].replace('', np.nan, inplace=True)
