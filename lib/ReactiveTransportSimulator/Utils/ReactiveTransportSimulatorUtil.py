@@ -732,7 +732,7 @@ class ReactiveTransportSimulatorRun1DUtil:
         new_file_content = ""
         for line in file:     
             if 'DATASET' in line:
-                new_file_content += '  DATASET 0 0 {} m/h'.format(velocity) + "\n"
+                new_file_content += '  DATASET {} 0 0 m/h'.format(velocity) + "\n"
 
             elif 'NXYZ' in line:
                 new_file_content += '  NXYZ {} 1 1'.format(ngrid) + "\n"
