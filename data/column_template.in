@@ -118,6 +118,7 @@ REGION inlet
     0.d0 -1.d20 -1.d20
     0.d0 1.d20 1.d20
   /
+  FACE TOP
 END
 #=========================== observation points ===============================
 #OBSERVATION
