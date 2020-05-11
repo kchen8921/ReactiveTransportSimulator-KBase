@@ -118,7 +118,10 @@ REGION inlet
     0.d0 -1.d20 -1.d20
     0.d0 1.d20 1.d20
   /
-  FACE TOP
+  FACE WEST
+END
+
+REGION outlet
 END
 #=========================== observation points ===============================
 #OBSERVATION
@@ -147,13 +150,18 @@ TRANSPORT_CONDITION initial
 END
 
 TRANSPORT_CONDITION inlet
-  TYPE ZERO_GRADIENT
+  TYPE DIRICHLET_ZERO_GRADIENT
   CONSTRAINT_LIST
     0.d0 inlet
   /
 END
 
-
+TRANSPORT_CONDITION outlet
+  TYPE ZERO_GRADIENT
+  CONSTRAINT_LIST
+    0.d0 initial
+  /
+END
 #=========================== constraints ======================================
 CONSTRAINT initial
 
@@ -170,11 +178,11 @@ INITIAL_CONDITION
   REGION all
 END
 
-#BOUNDARY_CONDITION outlet
+BOUNDARY_CONDITION outlet
 #  FLOW_CONDITION flow_bottom
-#  TRANSPORT_CONDITION initial
-#  REGION bottom
-#END
+  TRANSPORT_CONDITION initial
+  REGION outlet
+END
 
 BOUNDARY_CONDITION inlet
 #  FLOW_CONDITION flow_top
